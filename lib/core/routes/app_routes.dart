@@ -1,12 +1,9 @@
-
-
-
-
-
 import 'package:flutter/cupertino.dart';
 import 'package:vegnbio/presentation/screen/auth/login_screen.dart';
 import 'package:vegnbio/presentation/screen/auth/password_screen.dart';
 import 'package:vegnbio/presentation/screen/auth/register_screen.dart';
+
+import '../../presentation/screen/home/home_screen.dart';
 
 class AppRoutes {
 
@@ -20,5 +17,6 @@ class AppRoutes {
     login: (context) => const LoginScreen(),
     register: (context) =>  RegisterScreen(),
     forgotPass: (context) =>  PasswordScreen(),
+    home: (context) =>  HomeScreen(),
   };
 }
