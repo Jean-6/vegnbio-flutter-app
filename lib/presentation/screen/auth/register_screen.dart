@@ -6,7 +6,6 @@ import 'package:vegnbio/dto/e_role.dart';
 import '../../../core/constants/colors.dart';
 import '../../../core/routes/app_routes.dart';
 import '../../../dto/role.dart';
-import '../customer/customer_dashboard.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -27,7 +26,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   bool _isObscure = true;
   bool isLogin = true;
 
-  Future trySubmit() async {
+  Future<void> _trySubmit() async {
     logger.i(">> Registration form submitted");
 
     setState(() {
@@ -126,9 +125,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       ),
                       controller: usernameController,
                       validator: (value) {
-                        if (value == null || value.isEmpty)
+                        if (value == null || value.isEmpty){
                           return 'Veuiller entrer un login';
-                        return null;
+                        }
                       },
                     ),
                   ),
@@ -261,7 +260,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             ),
                             onPressed: () async {
                               if (_formKey.currentState!.validate()) {
-                                await trySubmit();
+                                await _trySubmit();
                               }
                             },
                             child: const Text("Ouvrir un compte"),
