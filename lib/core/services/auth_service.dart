@@ -48,20 +48,73 @@ class AuthService {
         );
 
         final loginResp = rw.data;
-
         /*
           if (!loginResp.hasValidToken) {
           logger.e('Token invalide');
           return null;
           }
          */
-
         await SecureStorageService.saveToken(loginResp.token);
         if(loginResp.roles.isNotEmpty){
           await SecureStorageService.saveRole(loginResp.roles.first);
         }
 
         logger.d(" >> registration successful");
+        return loginResp;
+      }else{
+        logger.e(' >> Error when registration: ${res.statusCode}');
+        return null;
+      }
+    }catch(e){
+      logger.e(' >> Exception catch when registration: $e');
+      return null;
+    }
+  }
+
+
+
+  Future<LoginResponse?> login({
+    required String username,
+    required String password,
+  }) async {
+    try{
+      final basicAuth = await authHelper.readBasicAuthHeader();
+      if(basicAuth == null){
+        logger.e('error when retrieving basic auth credentials');
+        return null;
+      }
+
+      final url = Uri.parse("$_baseUrl/api/auth/login");
+
+      final res = await http.post(url ,
+          headers: {
+            'Content-Type' : 'application/json',
+            'Authorization' : basicAuth,
+          },
+          body: json.encode({
+            'username':username,
+            'password': password,
+          })
+      );
+      if(res.statusCode == 200){
+        final decoded = json.decode(res.body) as Map<String, dynamic>;
+        final rw = ResponseWrapper<LoginResponse>.fromJson(
+            decoded,
+                (json) => LoginResponse.fromJson(json)
+        );
+
+        final loginResp = rw.data;
+        /*
+          if (!loginResp.hasValidToken) {
+          logger.e('Token invalide');
+          return null;
+          }
+         */
+        await SecureStorageService.saveToken(loginResp.token);
+        if(loginResp.roles.isNotEmpty){
+          await SecureStorageService.saveRole(loginResp.roles.first);
+        }
+        logger.d(" >> login successful");
         return loginResp;
       }else{
         logger.e(' >> Error when registration: ${res.statusCode}');
