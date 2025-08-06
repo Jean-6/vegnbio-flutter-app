@@ -1,6 +1,6 @@
 
 
-import 'Role.dart';
+import '../../dto/role.dart';
 
 class User{
   final String id;

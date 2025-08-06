@@ -1,4 +1,4 @@
-import 'ERole.dart';
+import 'e_role.dart';
 
 class Role {
 
@@ -21,4 +21,13 @@ class Role {
     };
   }
 
+  @override
+  String toString() {
+    // TODO: implement toString
+    return '''
+    {
+    "id":"$id",
+    "role":"${role.name}"
+    }''';
+  }
 }

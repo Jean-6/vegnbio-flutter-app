@@ -1,4 +1,4 @@
-import '../domain/model/Role.dart';
+import 'role.dart';
 
 class LoginResponse{
 
@@ -25,6 +25,21 @@ class LoginResponse{
             .map((r) => Role.fromJson(r))
             .toList(),
         token: json['token']);
+  }
+
+
+  @override
+  String toString() {
+    // TODO: implement toString
+    return '''
+    {
+    "id":  "$id",
+    "username": "$username",
+    "email": "$email",
+    "roles": "$roles",
+    "token": "$token"
+     }
+     ''';
   }
 
 
