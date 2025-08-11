@@ -1,30 +1,13 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import '../../dto/event.dart';
 
 class EventCard extends StatelessWidget {
-  /*final String restaurantId;
-  final String title;
-  final String desc;
-  final DateTime startDate;
-  final DateTime endDate;
-  final List<String> pictures;
-  final VoidCallback onTap;
-  final bool isLive;*/
   final Event event;
   final VoidCallback? onTap;
 
   const EventCard({
     Key? key,
-    /*required this.restaurantId,
-    required this.title,
-    required this.desc,
-    required this.startDate,
-    required this.endDate,
-    required this.pictures,
-    required this.onTap,
-    required this.isLive*/
     required this.event,
     required this.onTap,
   }) : super(key: key);
@@ -76,28 +59,56 @@ class EventCard extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          event.title,
+                          style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+                  
                   Text(
-                    event.title,
+                    event.desc,
                     style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
+                      fontSize: 14,
+                      color: Colors.black54,
                     ),
-                    maxLines: 1,
+                    maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  if (event.desc.isEmpty)
-                    Padding(
-                      padding: const EdgeInsets.only(top: 4.0),
-                      child: Text(
-                        event.desc,
-                        style: const TextStyle(
-                          fontSize: 14,
-                          color: Colors.black54,
-                        ),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
+                  const SizedBox(height: 8),
+
+                  /*Place*/
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween ,
+                    children: [
+                      const Icon(Icons.location_on, size: 16, color: Colors.grey),
+                      const SizedBox(width: 6),
+                      Expanded(
+                        child: Text('${event.location.address}, ${event.location.city}'+'(${event.location.postalCode})', overflow: TextOverflow.ellipsis)
                       ),
-                    ),
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+                  Row(
+                    children: [
+                      const Icon(Icons.label, size: 16, color: Colors.grey),
+                      const SizedBox(width: 6),
+                      Expanded(
+                          child:  Text('${event.category}',style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Colors.black87)),
+                      ),
+
+                    ],
+                  )
                 ],
               ),
             ),
@@ -105,50 +116,5 @@ class EventCard extends StatelessWidget {
         ),
       ),
     );
-
-    /*return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(16),
-      child: Container(
-        margin: EdgeInsets.only(bottom: 20),
-        decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(16),
-            color: Colors.white,
-            boxShadow: [
-              BoxShadow(color: Colors.black12, blurRadius: 6, offset: Offset(0, 3)),
-            ]
-        ),
-        child: ListTile(
-          contentPadding: EdgeInsets.all(12),
-          leading: ClipRRect(
-            borderRadius: BorderRadius.circular(12),
-            //child: Image.network(pictures.first, width: 50, height: 50, fit: BoxFit.cover),
-          ),
-          title: Text(title, style: TextStyle(fontWeight: FontWeight.bold)),
-          subtitle: Text(desc, maxLines: 2, overflow: TextOverflow.ellipsis),
-          trailing: Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              if(isLive)
-                Container(
-                  padding: EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                  decoration: BoxDecoration(
-                      color: Colors.blueAccent,
-                      borderRadius: BorderRadius.circular(6)
-                  ),
-                  child: Text("LIVE", style: TextStyle(color: Colors.white, fontSize: 12)),
-                ),
-              Spacer(),
-              /*Text(rating,
-                  style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.blue
-                  )),*/
-            ],
-          ),
-        ),
-      ),
-    );*/
   }
 }

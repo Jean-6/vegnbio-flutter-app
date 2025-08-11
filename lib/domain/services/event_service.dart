@@ -35,17 +35,10 @@ class EventService {
 
     final res = await http.get(url);
     if (res.statusCode == 200) {
+      logger.d('>> Server response : ${res.body}');
       final Map<String, dynamic> jsonMap = json.decode(res.body);
-
       final List<dynamic> jsonList = jsonMap['data'];
-
       return jsonList.map((json) => Event.fromJson(json)).toList();
-      //final wrapper = ResponseWrapper.fromJson(
-      //  jsonMap,
-      //  (data) => (data as List).map((e) => Event.fromJson(e)).toList(),
-      //);
-      logger.d(" >> Events fetching successful");
-      //return wrapper.data;
     } else {
       logger.e(' >> Error when fetching events: ${res.statusCode}');
       throw Exception("Error when loading events");
