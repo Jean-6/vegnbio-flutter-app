@@ -13,7 +13,13 @@ class CanteenService {
   final _baseUrl = Uri.parse("http://172.20.10.5:8082");
   final authHelper = CredentialStorageHelper();
 
-  Future<List<Canteen>?> fetchCanteens() async {
+  Future<List<Canteen>?> fetchCanteens({
+    String? restaurantName,
+    String? dishName,
+    DateTime? startDate,
+    DateTime? endDate,
+    bool? hasWifi,
+    bool? hasPrinter}) async {
     final basicAuth = await authHelper.readBasicAuthHeader();
     if(basicAuth == null){
       logger.e('>> Error when retrieving basic auth credentials');
@@ -32,7 +38,7 @@ class CanteenService {
               .map((e)=> Canteen.fromJson(e))
               .toList(),
       );
-      logger.d('>> Parsed canteens: ${rw.data}');
+      logger.d('>> Parsed canteens (full field): ${rw.data}');
       return rw.data;
     }else{
       logger.e('>> Error when fetching canteens: ${res.statusCode}');
