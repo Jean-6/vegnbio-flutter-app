@@ -10,9 +10,9 @@ class Canteen {
   final List<String> equipments;
   final int seats;
   final int meetingRooms;
-  //final Map<DateTime, OpeningHour> openingHourMap;
+  final Map<String, OpeningHour> openingHourMap;
   final Location location;
-  //final Contact contact;
+  final Contact contact;
   final List<String> tags; // ex: ["vegan", "bio", "local"]
   final List<String> menuIds;
   final List<String> pictures;
@@ -24,9 +24,9 @@ class Canteen {
     required this.equipments,
     required this.seats,
     required this.meetingRooms,
-    //required this.openingHourMap,
+    required this.openingHourMap,
     required this.location,
-    //required this.contact,
+    required this.contact,
     required this.tags,
     required this.menuIds,
     required this.pictures,
@@ -41,15 +41,15 @@ class Canteen {
       equipments: List<String>.from(json['equipments'] ?? []),
       seats: json['seats'] ?? 0,
       meetingRooms: json['meetingRooms'] ?? 0,
-      /*openingHourMap: (json['openingHoursMap'] as Map<String, dynamic>? ?? {})
+      openingHourMap: (json['openingHoursMap'] as Map<String, dynamic>? ?? {})
           .map(
             (key, value) => MapEntry(
-          DateTime.parse(key),
-          OpeningHour.fromJson(value as Map<String, dynamic>),
+              key.toString() ,
+              OpeningHour.fromJson(value as Map<String, dynamic>),
         ),
-      ),*/
+      ),
       location: Location.fromJson(json['location'] ?? {}),
-      //contact: Contact.fromJson(json['contact'] ?? {}),
+      contact: Contact.fromJson(json['contact'] ?? {}),
       tags: List<String>.from(json['tags'] ?? []),
       menuIds: List<String>.from(json['menuIds'] ?? []),
       pictures: List<String>.from(json['pictures'] ?? []),
@@ -66,13 +66,14 @@ class Canteen {
       "equipments": "$equipments",
       "seats": "$seats",
       "meetingRooms": "$meetingRooms",
+      "openingHourMap": "$openingHourMap",
       "location": "$location",
+      "contact": "$contact",
       "tags": "$tags",
       "menuIds": "$menuIds",
       "pictures": "$pictures"
     }''';
   }
-/*"openingHourMap": "$openingHourMap",*/
 }
 
 

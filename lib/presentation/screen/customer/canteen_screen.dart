@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:logger/logger.dart';
+import 'package:vegnbio/presentation/screen/customer/canteen_details_screen.dart';
 
 import '../../../domain/services/canteen_service.dart';
 import '../../../dto/canteen.dart';
@@ -258,7 +259,14 @@ class CanteenScreenState extends State<CanteenScreen> {
                 itemCount: filteredCanteens.length,
                 itemBuilder: (context, index) {
                   final item = filteredCanteens[index];
-                  return CanteenCard(canteen: item, onTap: () {});
+                  return CanteenCard(canteen: item, onTap: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (_) => CanteenDetailScreen(canteen: item),
+                        ),
+                    );
+                  });
                 },
               ),
             ),
