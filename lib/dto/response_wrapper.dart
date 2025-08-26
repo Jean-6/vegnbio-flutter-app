@@ -20,7 +20,7 @@ class ResponseWrapper<T>{
 
   factory ResponseWrapper.fromJson(
       Map<String, dynamic> json,
-      T Function(Map<String, dynamic>) fromJsonT,
+      T Function(dynamic) fromJsonT,
       ) {
     return ResponseWrapper(
         success: json['success'] ?? '',
@@ -34,7 +34,14 @@ class ResponseWrapper<T>{
   @override
   String toString() {
     // TODO: implement toString
-    return super.toString();
+    return '''
+    {
+        "success": "$success",
+        "message": "$message",
+        "data": "$data",
+        "status": "$status",
+        "path": "$path",
+    }''';
   }
 
 }
