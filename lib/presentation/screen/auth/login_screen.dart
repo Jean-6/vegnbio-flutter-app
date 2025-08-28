@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
 import 'package:vegnbio/core/routes/app_routes.dart';
 import '../../../core/constants/colors.dart';
-import '../../../core/services/auth_service.dart';
+import '../../../domain/services/auth_service.dart';
 import '../../../dto/e_role.dart';
 import '../../../dto/role.dart';
 
@@ -31,33 +31,52 @@ class _LoginScreenState extends State<LoginScreen> {
       _isLoading = true;
     });
 
-    final result = await authservice.login(
-      username: usernameController.text,
-      password: passwordController.text,
-    );
+    try{
 
-    setState(() {
-      _isLoading = false;
-    });
+      final result = await authservice.login(
+        username: usernameController.text.trim(),
+        password: passwordController.text.trim(),
+      );
 
-    if (result != null) {
-      logger.d(" >> Result : $result");
+      if (result != null) {
+        logger.d(" >> Result : $result");
 
-      final role = result.roles.isNotEmpty ? result.roles.first : '' as Role;
-      logger.d(" >> Role after sign in : $role");
+        final role = result.roles.isNotEmpty ? result.roles.first : null;
+        if (role == null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text("User role not found")),
+          );
+          return;
+        }
 
-      switch (role.role) {
-        case ERole.CUSTOMER:
-          Navigator.pushReplacementNamed(context, AppRoutes.customerDashboard);
-          break;
+        logger.d(" >> Role after sign in : $role");
 
-        case ERole.SUPPLIER:
-          Navigator.pushReplacementNamed(context, AppRoutes.supplierDashboard);
-          break;
+        switch (role.role) {
+          case ERole.CUSTOMER:
+            Navigator.pushReplacementNamed(context, AppRoutes.demo1);
+            break;
 
-        default:
-          Navigator.pushReplacementNamed(context, AppRoutes.register);
+          case ERole.SUPPLIER:
+            Navigator.pushReplacementNamed(context, AppRoutes.demo2);
+            break;
+
+          default:
+            Navigator.pushReplacementNamed(context, AppRoutes.register);
+        }
+      }else {
+        ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text("Login failure : credentials wrong")),
+        );
       }
+    }catch(e){
+      logger.e('Error when login : $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error when login : $e')),
+      );
+    }finally{
+      setState(() {
+        _isLoading =  false;
+      });
     }
   }
 
