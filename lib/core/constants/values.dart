@@ -22,11 +22,39 @@ final List<String> categories = [
 ];
 
 
-const List<String> unites = [
+const List<String> unities = [
   'kg',
   'g',
   'L',
   'ml',
   'pièce',
+];
+
+const List<String> countries = [
+  "France",
+  "Allemagne",
+  "Italie",
+  "Espagne",
+  "Portugal",
+  "Belgique",
+  "Pays-Bas",
+  "Suisse",
+  "Autriche",
+  "Canada",
+  "États-Unis",
+  "Brésil",
+  "Argentine",
+  "Maroc",
+  "Tunisie",
+  "Algérie",
+  "Sénégal",
+  "Chine",
+  "Japon",
+  "Corée du Sud",
+  "Inde",
+  "Australie",
+  "Nouvelle-Zélande",
+  "Afrique du Sud",
+  "Nigeria",
 ];
 

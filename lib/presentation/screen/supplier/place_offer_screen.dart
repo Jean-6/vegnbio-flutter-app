@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:logger/logger.dart';
+import 'package:vegnbio/core/routes/app_routes.dart';
 import 'package:vegnbio/core/services/date_picker_service.dart';
 import 'package:vegnbio/dto/upload_item.dart';
 import '../../../core/services/image_picker_service.dart';
@@ -17,7 +19,6 @@ class _PlaceOfferScreenState extends State<PlaceOfferScreen> {
 
   final TextEditingController _nameCtrl = TextEditingController();
   final TextEditingController _descCtrl = TextEditingController();
-  final TextEditingController _originCtrl = TextEditingController();
   final TextEditingController _quantityCtrl = TextEditingController();
   final TextEditingController _unitPriceCtrl = TextEditingController();
 
@@ -29,12 +30,13 @@ class _PlaceOfferScreenState extends State<PlaceOfferScreen> {
 
   bool _isLoading = false;
 
-  String? _selectedCategory ;
+  String? _selectedCategory;
   bool isLoading = false;
-  final List<String> _category = ['Légume', 'Fruit'];
 
   final ImagePickerService imagePickerService = ImagePickerService();
   final DatePickerService datePickerService = DatePickerService();
+
+  final logger = Logger();
 
   List<UploadItem> uploads = [];
 
@@ -62,9 +64,69 @@ class _PlaceOfferScreenState extends State<PlaceOfferScreen> {
   Future<void> _trySubmit() async {
     if (!_formKey.currentState!.validate()) return;
 
+    /**/
+    if(_selectedType == null || _selectedType!.isEmpty){
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Veuillez selectionner le type d'offre")),
+      );
+      return;
+    }
+    if(_nameCtrl.text.trim().isEmpty){
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Veuillez entrer le ,om du produit"))
+      );
+      return;
+    }
+    if (_descCtrl.text.trim().isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("La description du produit est requise")),
+      );
+      return;
+    }
+    if (_selectedCategory == null || _selectedCategory!.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Veuillez sélectionner une catégorie")),
+      );
+      return;
+    }
+    final quantity = double.tryParse(_quantityCtrl.text);
+    if (quantity == null || quantity <= 0) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Entrez une quantité valide (> 0)")),
+      );
+      return;
+    }
+    if (_selectedUnit == null || _selectedUnit!.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Veuillez sélectionner une unité")),
+      );
+      return;
+    }
+
+    // Validation du prix unitaire
+    final unitPrice = double.tryParse(_unitPriceCtrl.text);
+    if (unitPrice == null || unitPrice <= 0) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Entrez un prix unitaire valide (> 0)")),
+      );
+      return;
+    }
+
+    if (_selectedOrigin == null || _selectedOrigin!.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Veuillez sélectionner une origine")),
+      );
+      return;
+    }
+
+
+    /**/
+
     if (uploads.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Veuillez uploader au moins une image 📷")),
+        const SnackBar(
+          content: Text("Veuillez uploader au moins une image 📷"),
+        ),
       );
       return;
     }
@@ -87,6 +149,7 @@ class _PlaceOfferScreenState extends State<PlaceOfferScreen> {
         );
         return;
       }
+      
 
       final result = await offerService.save(
         type: _selectedType ?? "",
@@ -101,22 +164,22 @@ class _PlaceOfferScreenState extends State<PlaceOfferScreen> {
         expirationDate: _expirationDate!,
         uploads: uploads,
         userId: userId,
-        onProgress: (fileName,sent, total) {
+        onProgress: (fileName, sent, total) {
           setState(() {
+            if(fileName.isNotEmpty){
+              final item = uploads.where((u) => u.fileName == fileName).isNotEmpty
+                  ? uploads.firstWhere((u) => u.fileName == fileName)
+                  : null;
 
-            final item = uploads.firstWhere((u) => u.fileName == fileName);
-            item.isUploading = true;
-            item.progress = total > 0 ? sent / total : 0;
-
-            /*for (var u in uploads) {
-              if (total > 0) {
-                u.progress = sent / total;
-                u.isUploading = true;
+              if(item != null){
+                item.isUploading = true;
+                item.progress = total > 0 ? sent / total : 0;
               }
-            }*/
+            }
           });
         },
       );
+      
 
       if (result != null) {
         setState(() {
@@ -128,21 +191,22 @@ class _PlaceOfferScreenState extends State<PlaceOfferScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text("Offre créée avec succès ✅")),
         );
-        Navigator.pop(context);
+        Navigator.of(context).pushReplacementNamed(AppRoutes.demo2);
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Erreur lors de la création de l'offre ❌")),
+          const SnackBar(
+            content: Text("Erreur lors de la création de l'offre ❌"),
+          ),
         );
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Erreur: $e")),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Erreur: $e")));
     } finally {
       setState(() => _isLoading = false);
     }
   }
-
 
   Future<void> _pickImages() async {
     final files = await imagePickerService.pickImages(
@@ -161,25 +225,27 @@ class _PlaceOfferScreenState extends State<PlaceOfferScreen> {
 
     setState(() {
       uploads.addAll(
-        files.map((f) => UploadItem(
-          fileName: f.name,
-          path: f.path,
-          file: f,
-          progress: 0,
-          isUploading: false,
-        )),
+        files.map(
+          (f) => UploadItem(
+            fileName: f.name,
+            path: f.path,
+            file: f,
+            progress: 0,
+            isUploading: false,
+          ),
+        ),
       );
     });
   }
-
-
-
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Créer une offre", style: TextStyle(color: Colors.white)),
+        title: const Text(
+          "Créer une offre",
+          style: TextStyle(color: Colors.white),
+        ),
         backgroundColor: const Color(0xFF4CAF50),
         centerTitle: true,
         elevation: 0,
@@ -197,7 +263,10 @@ class _PlaceOfferScreenState extends State<PlaceOfferScreen> {
                     decoration: InputDecoration(
                       filled: true,
                       fillColor: Colors.white,
-                      contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      contentPadding: EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 12,
+                      ),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10),
                         borderSide: BorderSide(color: Color(0xFFE0E0E0)),
@@ -237,7 +306,10 @@ class _PlaceOfferScreenState extends State<PlaceOfferScreen> {
                   decoration: InputDecoration(
                     filled: true,
                     fillColor: Colors.white,
-                    contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    contentPadding: EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 12,
+                    ),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10),
                       borderSide: BorderSide(color: Color(0xFFE0E0E0)),
@@ -257,8 +329,9 @@ class _PlaceOfferScreenState extends State<PlaceOfferScreen> {
                     hintText: "Entrez le nom du produit",
                     hintStyle: TextStyle(color: Colors.grey.shade500),
                   ),
-                  validator: (val) =>
-                  val == null || val.trim().isEmpty ? "Nom du produit requis" : null,
+                  validator: (val) => val == null || val.trim().isEmpty
+                      ? "Nom du produit requis"
+                      : null,
                 ),
 
                 const SizedBox(height: 15),
@@ -268,7 +341,10 @@ class _PlaceOfferScreenState extends State<PlaceOfferScreen> {
                   decoration: InputDecoration(
                     filled: true,
                     fillColor: Colors.white,
-                    contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    contentPadding: EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 12,
+                    ),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10),
                       borderSide: BorderSide(color: Color(0xFFE0E0E0)),
@@ -301,7 +377,10 @@ class _PlaceOfferScreenState extends State<PlaceOfferScreen> {
                   decoration: InputDecoration(
                     filled: true,
                     fillColor: Colors.white,
-                    contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    contentPadding: EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 12,
+                    ),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10),
                       borderSide: BorderSide(color: Color(0xFFE0E0E0)),
@@ -327,7 +406,7 @@ class _PlaceOfferScreenState extends State<PlaceOfferScreen> {
                   onChanged: (value) =>
                       setState(() => _selectedCategory = value),
                   validator: (value) =>
-                  value == null ? "Sélectionnez une catégorie" : null,
+                      value == null ? "Sélectionnez une catégorie" : null,
                 ),
 
                 const SizedBox(height: 15),
@@ -343,7 +422,10 @@ class _PlaceOfferScreenState extends State<PlaceOfferScreen> {
                           decoration: InputDecoration(
                             filled: true,
                             fillColor: Colors.white,
-                            contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                            contentPadding: EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 12,
+                            ),
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(10),
                               borderSide: BorderSide(color: Color(0xFFE0E0E0)),
@@ -361,7 +443,7 @@ class _PlaceOfferScreenState extends State<PlaceOfferScreen> {
                             ),
                             labelText: "Unité",
                           ),
-                          items: ['kg', 'g', 'L', 'ml'].map((unit) {
+                          items: unities.map((unit) {
                             return DropdownMenuItem<String>(
                               value: unit,
                               child: Text(unit),
@@ -375,12 +457,13 @@ class _PlaceOfferScreenState extends State<PlaceOfferScreen> {
                         ),
                       ),
                     ),
+                    
                     Expanded(
-                      flex: 2, // 2 parties pour le prix
+                      flex: 1,
                       child: Container(
                         margin: EdgeInsets.only(left: 8),
                         child: TextFormField(
-                          controller: _unitPriceCtrl,
+                          controller: _quantityCtrl,
                           keyboardType: TextInputType.number,
                           decoration: InputDecoration(
                             filled: true,
@@ -401,12 +484,57 @@ class _PlaceOfferScreenState extends State<PlaceOfferScreen> {
                                 width: 2,
                               ),
                             ),
+                            labelText: "Quantité",
+                            hintText: "0",
+                          ),
+                          validator: (value) {
+                            if (value == null || value.isEmpty) return "Quantité requise";
+                            final qty = double.tryParse(value);
+                            if (qty == null || qty <= 0) return "Entrez une quantité valide (> 0)";
+                            return null;
+                          },
+                        )
+                      ),
+                      
+                    ),
+                    
+                    Expanded(
+                      flex: 2, // 2 parties pour le prix
+                      child: Container(
+                        margin: EdgeInsets.only(left: 8),
+                        child: TextFormField(
+                          controller: _unitPriceCtrl,
+                          keyboardType: TextInputType.number,
+                          decoration: InputDecoration(
+                            filled: true,
+                            fillColor: Colors.white,
+                            contentPadding: EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 12,
+                            ),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10),
+                              borderSide: BorderSide(color: Color(0xFFE0E0E0)),
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10),
+                              borderSide: BorderSide(color: Color(0xFFE0E0E0)),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10),
+                              borderSide: BorderSide(
+                                color: Color(0xFF4CAF50),
+                                width: 2,
+                              ),
+                            ),
                             labelText: "Prix Unitaire",
                             hintText: "0.00",
                           ),
                           validator: (value) {
-                            if (value == null || value.isEmpty) return "Le prix est requis";
-                            if (double.tryParse(value) == null) return "Entrez un nombre valide";
+                            if (value == null || value.isEmpty)
+                              return "Le prix est requis";
+                            if (double.tryParse(value) == null)
+                              return "Entrez un nombre valide";
                             return null;
                           },
                         ),
@@ -424,7 +552,10 @@ class _PlaceOfferScreenState extends State<PlaceOfferScreen> {
                     decoration: InputDecoration(
                       filled: true,
                       fillColor: Colors.white,
-                      contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      contentPadding: EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 12,
+                      ),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10),
                         borderSide: BorderSide(color: Color(0xFFE0E0E0)),
@@ -442,7 +573,7 @@ class _PlaceOfferScreenState extends State<PlaceOfferScreen> {
                       ),
                       labelText: 'Origine',
                     ),
-                    items: ['Local', 'Importé', 'Bio', 'Autre'].map((origin) {
+                    items: countries.map((origin) {
                       return DropdownMenuItem<String>(
                         value: origin,
                         child: Text(origin),
@@ -453,7 +584,9 @@ class _PlaceOfferScreenState extends State<PlaceOfferScreen> {
                         _selectedOrigin = value!;
                       });
                     },
-                    validator: (value) => value == null ? "Veuillez sélectionner une origine" : null,
+                    validator: (value) => value == null
+                        ? "Veuillez sélectionner une origine"
+                        : null,
                   ),
                 ),
 
@@ -464,7 +597,10 @@ class _PlaceOfferScreenState extends State<PlaceOfferScreen> {
                       child: GestureDetector(
                         onTap: () => _pickDate(true),
                         child: Container(
-                          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 14,
+                          ),
                           decoration: BoxDecoration(
                             color: Colors.white,
                             borderRadius: BorderRadius.circular(10),
@@ -488,7 +624,10 @@ class _PlaceOfferScreenState extends State<PlaceOfferScreen> {
                       child: GestureDetector(
                         onTap: () => _pickDate(false),
                         child: Container(
-                          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 14,
+                          ),
                           decoration: BoxDecoration(
                             color: Colors.white,
                             borderRadius: BorderRadius.circular(10),
@@ -519,7 +658,10 @@ class _PlaceOfferScreenState extends State<PlaceOfferScreen> {
                       foregroundColor: Colors.white,
                       elevation: 4,
                       shadowColor: Colors.greenAccent.withOpacity(0.4),
-                      padding: EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 24,
+                        vertical: 16,
+                      ),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
@@ -544,27 +686,27 @@ class _PlaceOfferScreenState extends State<PlaceOfferScreen> {
                       title: Text(item.fileName),
                       subtitle: item.isUploading
                           ? LinearProgressIndicator(
-                        value: item.progress,
-                        minHeight: 5,
-                        color: Color(0xFF4CAF50),
-                        backgroundColor: Colors.grey.shade300,
-                      )
+                              value: item.progress,
+                              minHeight: 5,
+                              color: Color(0xFF4CAF50),
+                              backgroundColor: Colors.grey.shade300,
+                            )
                           : null,
                       trailing: item.isUploading
                           ? SizedBox(
-                        width: 20,
-                        height: 20,
-                        child: CircularProgressIndicator(
-                          value: item.progress,
-                          strokeWidth: 2,
-                        ),
-                      )
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(
+                                value: item.progress,
+                                strokeWidth: 2,
+                              ),
+                            )
                           : const Icon(Icons.check_circle, color: Colors.green),
                     );
                   },
                 ),
                 const SizedBox(height: 20),
-                
+
                 Container(
                   width: double.infinity,
                   margin: EdgeInsets.symmetric(vertical: 16),
@@ -574,7 +716,10 @@ class _PlaceOfferScreenState extends State<PlaceOfferScreen> {
                       foregroundColor: Colors.white,
                       elevation: 4,
                       shadowColor: Colors.greenAccent.withOpacity(0.4),
-                      padding: EdgeInsets.symmetric(horizontal: 24, vertical: 18),
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 24,
+                        vertical: 18,
+                      ),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
@@ -584,11 +729,19 @@ class _PlaceOfferScreenState extends State<PlaceOfferScreen> {
                         letterSpacing: 1.0,
                       ),
                     ),
-                    onPressed: _trySubmit,
-                    child: Text("Enregistrer"),
+                    onPressed: isLoading ? null : _trySubmit,
+                    child: _isLoading
+                        ? SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.white,
+                            ),
+                          )
+                        : Text("Enregistrer"),
                   ),
-
-                )
+                ),
               ],
             ),
           ),

@@ -3,6 +3,7 @@ import 'package:vegnbio/presentation/screen/auth/login_screen.dart';
 import 'package:vegnbio/presentation/screen/auth/password_screen.dart';
 import 'package:vegnbio/presentation/screen/auth/register_screen.dart';
 import 'package:vegnbio/presentation/screen/demo/customer_dash.dart';
+import 'package:vegnbio/presentation/screen/supplier/place_offer_screen.dart';
 
 import '../../presentation/screen/demo/supplier_dash.dart';
 

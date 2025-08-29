@@ -11,12 +11,14 @@ import '../../core/services/credential_storage_helper.dart';
 import '../../dto/upload_item.dart';
 import '../model/offer.dart';
 
+import 'package:http_parser/http_parser.dart';
+
+
 class OfferService {
 
   final logger = Logger();
-  final _baseUrl = Uri.parse("http://172.20.10.5:8082");
+  final _baseUrl = "http://172.20.10.5:8082";
   final authHelper = CredentialStorageHelper();
-
 
 
   Future<Offer?> save({
@@ -41,76 +43,108 @@ class OfferService {
         return null;
       }
 
-      final url = Uri.parse("$_baseUrl/api/offer");
+      final url = Uri.parse("$_baseUrl/api/offer/");
       final request = http.MultipartRequest('POST', url)
         ..headers['Authorization'] = basicAuth;
 
-      // Champs texte
-      request.fields.addAll({
-        'type': type,
-        'name': name,
-        'desc': desc,
-        'category': category,
-        'quantity': quantity.toString(),
-        'unit': unit,
-        'unitPrice': unitPrice.toString(),
-        'origin': origin,
-        'availabilityDate': DateFormat('dd-MM-yyyy').format(availabilityDate),
-        'expirationDate': DateFormat('dd-MM-yyyy').format(expirationDate),
-        'userId': userId,
-      });
+      request.files.add(
+        http.MultipartFile.fromString(
+            'data',
+            jsonEncode({
+              'type': type,
+              'name': name,
+              'desc': desc,
+              'category': category,
+              'quantity': quantity.toString(),
+              'unit': unit,
+              'unitPrice': unitPrice.toString(),
+              'origin': origin,
+              'availabilityDate': DateFormat('dd-MM-yyyy').format(availabilityDate),
+              'expirationDate': DateFormat('dd-MM-yyyy').format(expirationDate),
+              'userId': userId,
+            }),
+            contentType: MediaType('application', 'json')
+        )
+      );
+
 
       // Ajout des fichiers
       for (var u in uploads) {
         if (kIsWeb) {
           final bytes = await u.file!.readAsBytes();
           request.files.add(
-            http.MultipartFile.fromBytes('images', bytes, filename: u.fileName),
+            http.MultipartFile.fromBytes('pictures', bytes, filename: u.fileName),
           );
         } else {
           request.files.add(
-            await http.MultipartFile.fromPath('images', u.path),
+            await http.MultipartFile.fromPath('pictures', u.path),
           );
         }
       }
 
-      // Envoyer la requête
+      // Envoi de la requête
       final streamedResponse = await request.send();
 
-      // Progression
+      // Gestion de la progression
       if (onProgress != null) {
-        int totalBytes = streamedResponse.contentLength ?? 0;
+        final totalBytes = streamedResponse.contentLength ?? 0;
         int sentBytes = 0;
 
-        streamedResponse.stream.listen((chunk) {
-          sentBytes += chunk.length;
-          for (var u in uploads) {
-            u.isUploading = true;
-            u.progress = totalBytes > 0 ? sentBytes / totalBytes : 0;
-          }
-          onProgress("", sentBytes, totalBytes);
-        });
-      }
+        final stream = streamedResponse.stream.transform<List<int>>(
+          StreamTransformer.fromHandlers(
+            handleData: (List<int> chunk, EventSink<List<int>> sink) {
+              sentBytes += chunk.length;
 
-      final response = await http.Response.fromStream(streamedResponse);
+              // Mettre à jour chaque fichier
+              for (var u in uploads) {
+                u.isUploading = true;
+                u.progress = totalBytes > 0 ? sentBytes / totalBytes : 0;
+              }
 
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        final data = jsonDecode(response.body);
-        return Offer.fromJson(data);
+              onProgress("upload", sentBytes, totalBytes);
+
+              sink.add(chunk); // <-- important : on repasse le chunk
+            },
+          ),
+        );
+
+        // Reconstruire la réponse HTTP avec suivi
+        final response = await http.Response.fromStream(
+          http.StreamedResponse(
+            stream,
+            streamedResponse.statusCode,
+            contentLength: streamedResponse.contentLength,
+            request: streamedResponse.request,
+            headers: streamedResponse.headers,
+            reasonPhrase: streamedResponse.reasonPhrase,
+            isRedirect: streamedResponse.isRedirect,
+            persistentConnection: streamedResponse.persistentConnection,
+          ),
+        );
+
+        if (response.statusCode == 200 || response.statusCode == 201) {
+          final data = jsonDecode(response.body);
+          return Offer.fromJson(data);
+        } else {
+          logger.e('Error ${response.statusCode}: ${response.body}');
+          return null;
+        }
       } else {
-        logger.e('Error ${response.statusCode}: ${response.body}');
-        return null;
+        // Si pas de suivi demandé
+        final response = await http.Response.fromStream(streamedResponse);
+        if (response.statusCode == 200 || response.statusCode == 201) {
+          final data = jsonDecode(response.body);
+          return Offer.fromJson(data);
+        } else {
+          logger.e('Error ${response.statusCode}: ${response.body}');
+          return null;
+        }
       }
     } catch (e) {
       logger.e('Exception during offer save: $e');
       return null;
     }
   }
-
-
-
-
-
-
+  
 }
 
