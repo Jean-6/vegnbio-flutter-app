@@ -11,7 +11,7 @@ class Offer {
   final String unit;
   final double unitPrice;
   final String origin;
-  List<File> pictures;
+  List<String> pictures;
   final DateTime availabilityDate;
   final DateTime expirationDate;
   final String supplierId;
@@ -53,21 +53,9 @@ class Offer {
 
 
       unit: json['unit'] as String? ?? "",
-
-
       unitPrice: _toDouble(json['unitPrice']),
-      /*(json['unitPrice'] != null)
-          ? (json['unitPrice'] is String
-      ? double.tryParse(json['unitPrice']) ?? 0 : (json['unitPrice'] as num).toDouble()) : 0,*/
-
       origin: json['origin'] as String? ?? "",
-
-      pictures: (json['pictures'] != null && json['pictures'] is List)
-          ? (json['pictures'] as List)
-                .map<File>((e) => File(e.toString()))
-                .toList()
-          : [],
-
+      pictures: List<String>.from(json['pictures'] ?? []),
       availabilityDate: (json['availabilityDate'] != null)
           ? dateFormat.parse(json['availabilityDate'])
           : DateTime.now(),
@@ -91,7 +79,7 @@ class Offer {
       'origin': origin,
       'availability_date': availabilityDate.toIso8601String(),
       'expiration_date': expirationDate.toIso8601String(),
-      'supplier_id': supplierId,
+      //'supplier_id': supplierId,
     };
   }
 }

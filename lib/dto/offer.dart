@@ -6,7 +6,7 @@ class Offer{
 
   final String type;
   final String name;
-  final String description;
+  final String desc;
   final String category;
   final double quantity;
   final String unit;
@@ -18,7 +18,7 @@ class Offer{
   final String supplierId;
 
 
-  Offer({required this.type, required this.name, required this.description, required this.category, required this.quantity,
+  Offer({required this.type, required this.name, required this.desc, required this.category, required this.quantity,
     required this.unit, required this.unitPrice,
     this.pictures = const[], required this.origin, required this.availabilityDate, required this.expirationDate, required this.supplierId
   });
@@ -27,7 +27,7 @@ class Offer{
     return {
       'type': type,
       'nom': name,
-      'description': description,
+      'desc': desc,
       'category': category,
       'quantity': quantity,
       'unit': unit,

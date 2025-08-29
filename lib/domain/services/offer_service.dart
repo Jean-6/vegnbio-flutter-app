@@ -1,4 +1,3 @@
-
 import 'dart:async';
 import 'dart:convert';
 
@@ -8,18 +7,45 @@ import 'package:intl/intl.dart';
 import 'package:logger/logger.dart';
 
 import '../../core/services/credential_storage_helper.dart';
+import '../../dto/offer_filter.dart';
+import '../../dto/response_wrapper.dart';
 import '../../dto/upload_item.dart';
 import '../model/offer.dart';
 
 import 'package:http_parser/http_parser.dart';
 
-
 class OfferService {
-
   final logger = Logger();
   final _baseUrl = "http://172.20.10.5:8082";
   final authHelper = CredentialStorageHelper();
 
+  Future<List<Offer>> fetchWithFilters({
+    required OfferFilter filters
+  }) async {
+    final basicAuth = await authHelper.readBasicAuthHeader();
+    if (basicAuth == null) {
+      logger.e('>> Error when retrieving basic auth credentials');
+      throw Exception ("Authentication required");
+    }
+
+    final url = Uri.parse("$_baseUrl/api/offer/")
+        .replace(queryParameters: filters.toQueryParams());
+
+    final res = await http.get(url, headers : {"Authorization": basicAuth});
+    logger.d('>> Raw response: ${res.body}');
+    if (res.statusCode == 200) {
+      final Map<String, dynamic> jsonMap = json.decode(res.body);
+      final rw = ResponseWrapper.fromJson(
+        jsonMap,
+        (data) => (data as List).map((e) => Offer.fromJson(e)).toList(),
+      );
+      logger.d('>> Parsed offer (full field): ${rw.data}');
+      return rw.data ?? [];
+    } else {
+      logger.e('>> Error when fetching offers: ${res.statusCode}');
+      throw Exception('Error when fetching offers');
+    }
+  }
 
   Future<Offer?> save({
     required String type,
@@ -49,31 +75,36 @@ class OfferService {
 
       request.files.add(
         http.MultipartFile.fromString(
-            'data',
-            jsonEncode({
-              'type': type,
-              'name': name,
-              'desc': desc,
-              'category': category,
-              'quantity': quantity.toString(),
-              'unit': unit,
-              'unitPrice': unitPrice.toString(),
-              'origin': origin,
-              'availabilityDate': DateFormat('dd-MM-yyyy').format(availabilityDate),
-              'expirationDate': DateFormat('dd-MM-yyyy').format(expirationDate),
-              'userId': userId,
-            }),
-            contentType: MediaType('application', 'json')
-        )
+          'data',
+          jsonEncode({
+            'type': type,
+            'name': name,
+            'desc': desc,
+            'category': category,
+            'quantity': quantity.toString(),
+            'unit': unit,
+            'unitPrice': unitPrice.toString(),
+            'origin': origin,
+            'availabilityDate': DateFormat(
+              'dd-MM-yyyy',
+            ).format(availabilityDate),
+            'expirationDate': DateFormat('dd-MM-yyyy').format(expirationDate),
+            'userId': userId,
+          }),
+          contentType: MediaType('application', 'json'),
+        ),
       );
-
 
       // Ajout des fichiers
       for (var u in uploads) {
         if (kIsWeb) {
           final bytes = await u.file!.readAsBytes();
           request.files.add(
-            http.MultipartFile.fromBytes('pictures', bytes, filename: u.fileName),
+            http.MultipartFile.fromBytes(
+              'pictures',
+              bytes,
+              filename: u.fileName,
+            ),
           );
         } else {
           request.files.add(
@@ -145,6 +176,4 @@ class OfferService {
       return null;
     }
   }
-  
 }
-
