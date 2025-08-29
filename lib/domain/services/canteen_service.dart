@@ -3,23 +3,20 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:logger/logger.dart';
 import 'package:vegnbio/dto/canteen.dart';
-import 'package:vegnbio/dto/canteenOption.dart';
+import 'package:vegnbio/dto/canteen_option.dart';
 import 'package:vegnbio/dto/response_wrapper.dart';
 
 import '../../core/services/credential_storage_helper.dart';
+import '../../dto/canteen_filter.dart';
 
 class CanteenService {
   final logger = Logger();
   final _baseUrl = Uri.parse("http://172.20.10.5:8082");
   final authHelper = CredentialStorageHelper();
 
-  Future<List<Canteen>?> fetchCanteens({
-    String? restaurantName,
-    String? dishName,
-    DateTime? startDate,
-    DateTime? endDate,
-    bool? hasWifi,
-    bool? hasPrinter}) async {
+  Future<List<Canteen>?> fetchWithFilters({
+    required CanteenFilter filters
+}) async {
     final basicAuth = await authHelper.readBasicAuthHeader();
     if(basicAuth == null){
       logger.e('>> Error when retrieving basic auth credentials');
@@ -45,8 +42,7 @@ class CanteenService {
       throw Exception ('Error when fetching canteens');
     }
   }
-
-
+  
 
   Future<List<CanteenOption>?> fetchCanteenOption() async {
     final basicAuth = await authHelper.readBasicAuthHeader();

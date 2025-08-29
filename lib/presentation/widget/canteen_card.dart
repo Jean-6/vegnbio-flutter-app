@@ -50,7 +50,6 @@ class CanteenCard extends StatelessWidget {
               ),
             ),
             const SizedBox(width: 12),
-
             //Infos
             Expanded(
               child: Column(

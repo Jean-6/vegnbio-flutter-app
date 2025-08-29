@@ -1,15 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_carousel_slider/carousel_slider.dart';
-import 'package:vegnbio/presentation/widget/room_reservation_form.dart';
-import 'package:vegnbio/presentation/widget/table_reservation_form.dart';
+import 'package:vegnbio/presentation/widget/room_booking_form.dart';
+import 'package:vegnbio/presentation/widget/table_booking_form.dart';
 
 import '../../../dto/canteen.dart';
 
 class CanteenDetailScreen extends StatefulWidget {
   final Canteen canteen;
 
-  const CanteenDetailScreen({Key? key, required this.canteen})
-    : super(key: key);
+  const CanteenDetailScreen({super.key, required this.canteen});
 
   @override
   State<CanteenDetailScreen> createState() => _CanteenDetailScreenState();
@@ -26,9 +25,6 @@ class _CanteenDetailScreenState extends State<CanteenDetailScreen>
   final _avisKey = GlobalKey();
 
   late TabController _tabController;
-
-  bool _showTableForm = false;
-  bool _showRoomForm = false;
 
   @override
   void initState() {
@@ -47,57 +43,6 @@ class _CanteenDetailScreenState extends State<CanteenDetailScreen>
       );
     }
   }
-
-  /*
-  void _reserveTable() {
-    showDialog(
-      context: context,
-      builder: (_) =>
-          AlertDialog(
-            title: Text("Réserver une table"),
-            content: Text(
-                "Réservation d'une table pour ${widget.canteen.name}"),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: Text("Annuler"),
-              ),
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-                child: Text("Confirmer"),
-              ),
-            ],
-          ),
-    );
-  }
-
-  void _reserveRoom() {
-    showDialog(
-      context: context,
-      builder: (_) =>
-          AlertDialog(
-            title: Text("Réserver une salle"),
-            content: Text(
-                "Réservation d'une salle pour ${widget.canteen.name}"),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: Text("Annuler"),
-              ),
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-                child: Text("Confirmer"),
-              ),
-            ],
-          ),
-    );
-  }
-
-*/
 
   Widget _sectionTitle(String title, IconData icon) {
     return Padding(
@@ -122,38 +67,6 @@ class _CanteenDetailScreenState extends State<CanteenDetailScreen>
         leading: const Icon(Icons.person),
         title: Text(author),
         subtitle: Text(content),
-      ),
-    );
-  }
-
-  void _reserve(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (_) => AlertDialog(
-        title: Text("Réserver"),
-        content: Text("Voulez-vous réserver une table ou une salle ?"),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text("Annuler"),
-          ),
-          ElevatedButton.icon(
-            icon: Icon(Icons.restaurant),
-            label: Text("Table"),
-            onPressed: () {
-              Navigator.pop(context);
-              // TODO: appel API réservation table
-            },
-          ),
-          ElevatedButton.icon(
-            icon: Icon(Icons.meeting_room),
-            label: Text("Salle"),
-            onPressed: () {
-              Navigator.pop(context);
-              // TODO: appel API réservation salle
-            },
-          ),
-        ],
       ),
     );
   }
@@ -244,28 +157,57 @@ class _CanteenDetailScreenState extends State<CanteenDetailScreen>
                       children: <Widget>[
                         Expanded(
                           child: ElevatedButton.icon(
-                            onPressed: () {
-                              showDialog(
+                            onPressed: () async {
+                              final result = await showDialog<bool>(
                                 context: context,
                                 builder: (context) {
                                   return Dialog(
                                     insetPadding: EdgeInsets.zero,
                                     shape: RoundedRectangleBorder(
-                                      borderRadius:  BorderRadius.circular(12),
+                                      borderRadius: BorderRadius.circular(12),
                                     ),
                                     child: ConstrainedBox(
-                                        constraints: BoxConstraints(
-                                          maxWidth: 500,
-                                          maxHeight: 350,
-                                        ),
-                                      child: TableReservationForm(
-                                          onReserved: (){
-                                            Navigator.pop(context);
-                                          }),
-                                    )
+                                      constraints: BoxConstraints(
+                                        maxWidth: 500,
+                                        maxHeight: 350,
+                                      ),
+                                      child: TableBookingForm(
+                                        onReserved: () {
+                                          Navigator.pop(context, true);
+                                        },
+                                        canteenId: canteen.id,
+                                      ),
+                                    ),
                                   );
                                 },
                               );
+
+                              if (result == true) {
+                                // ✅ Affiche une alerte de succès
+                                showDialog(
+                                  context: context,
+                                  builder: (context) {
+                                    return AlertDialog(
+                                      title: const Text("Succès"),
+                                      content: const Text(
+                                        "Votre réservation a bien été enregistrée ✅",
+                                      ),
+                                      actions: [
+                                        TextButton(
+                                          onPressed: () {
+                                            Navigator.of(
+                                              context,
+                                            ).pop(); // ferme l'alerte
+                                          },
+                                          child: const Text("OK"),
+                                        ),
+                                      ],
+                                    );
+                                  },
+                                );
+                                // Refresh data
+                                setState(() {});
+                              }
                             },
                             icon: const Icon(Icons.restaurant),
                             label: const Text("Réserver une table"),
@@ -274,37 +216,95 @@ class _CanteenDetailScreenState extends State<CanteenDetailScreen>
                         const SizedBox(width: 12), // espace entre les boutons
                         Expanded(
                           child: ElevatedButton.icon(
+                            onPressed: () async {
+                              final result = await showDialog<bool>(
+                                context: context,
+                                builder: (context) {
+                                  return Dialog(
+                                    insetPadding: EdgeInsets.zero,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    child: ConstrainedBox(
+                                      constraints: BoxConstraints(
+                                        maxWidth: 500,
+                                        maxHeight: 350,
+                                      ),
+                                      child: RoomBookingForm(
+                                        onReserved: () {
+                                          Navigator.pop(context, true);
+                                        },
+                                        canteenId: canteen.id,
+                                      ),
+                                    ),
+                                  );
+                                },
+                              );
+
+                              if (result == true) {
+                                // ✅ Affiche une alerte de succès
+                                showDialog(
+                                  context: context,
+                                  builder: (context) {
+                                    return AlertDialog(
+                                      title: const Text("Succès"),
+                                      content: const Text(
+                                        "Votre réservation a bien été enregistrée ✅",
+                                      ),
+                                      actions: [
+                                        TextButton(
+                                          onPressed: () {
+                                            Navigator.of(
+                                              context,
+                                            ).pop(); // ferme l'alerte
+                                          },
+                                          child: const Text("OK"),
+                                        ),
+                                      ],
+                                    );
+                                  },
+                                );
+                                // Refresh data
+                                setState(() {});
+                              }
+                            },
+                            icon: const Icon(Icons.local_post_office),
+                            label: const Text("Réserver une salle"),
+                          ),
+
+                          /*
                             onPressed: () {
                               showDialog(
                                 context: context,
                                 builder: (context) {
                                   return Dialog(
-                                      insetPadding: EdgeInsets.zero,
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius:  BorderRadius.circular(12),
+                                    insetPadding: EdgeInsets.zero,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    child: ConstrainedBox(
+                                      constraints: BoxConstraints(
+                                        maxWidth: 500,
+                                        maxHeight: 350,
                                       ),
-                                      child: ConstrainedBox(
-                                        constraints: BoxConstraints(
-                                          maxWidth: 500,
-                                          maxHeight: 350,
-                                        ),
-                                        child: RoomReservationForm(
-                                            onReserved: (){
-                                              Navigator.pop(context);
-                                            }),
-                                      )
+                                      child: RoomBookingForm(
+                                        onReserved: () {
+                                          Navigator.pop(context);
+                                        },
+                                        canteenId: canteen.id,
+                                      ),
+                                    ),
                                   );
                                 },
                               );
                             },
                             icon: const Icon(Icons.meeting_room),
                             label: const Text("Réserver une salle"),
-                          ),
+                          ),*/
                         ),
                       ],
                     ),
                   ),
-
 
                   //if(_showRoomForm)
                   Container(key: _horairesKey),

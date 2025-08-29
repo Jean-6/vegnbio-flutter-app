@@ -1,8 +1,8 @@
 
 
 
-class CanteenSearchDTO {
-  final String? restaurantName;
+class CanteenFilter {
+  final String? canteenName;
   final String? dishName;
   final DateTime? startDate;
   final DateTime? endDate;
@@ -11,8 +11,8 @@ class CanteenSearchDTO {
   final bool? hasPrinter;
   final bool? hasConferenceRoom;
 
-  CanteenSearchDTO({
-    this.restaurantName,
+  CanteenFilter({
+    this.canteenName,
     this.dishName,
     this.startDate,
     this.endDate,
@@ -24,7 +24,7 @@ class CanteenSearchDTO {
 
   Map<String, String> toQueryParams() {
     final Map<String, String> params = {};
-    if (restaurantName != null) params['restaurantName'] = restaurantName!;
+    if (canteenName != null) params['canteenName'] = canteenName!;
     if (dishName != null) params['dishName'] = dishName!;
     if (startDate != null) params['startDate'] = startDate!.toIso8601String();
     if (endDate != null) params['endDate'] = endDate!.toIso8601String();
