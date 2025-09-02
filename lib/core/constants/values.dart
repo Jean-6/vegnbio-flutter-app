@@ -65,3 +65,8 @@ const List<String> eventType = [
   'Autre',
 ];
 
+const List<String> dishType = [
+  'Entrée', 'Plat', 'Dessert', 'Boisson'
+];
+
+
