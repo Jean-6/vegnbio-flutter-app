@@ -1,10 +1,11 @@
+import 'package:intl/intl.dart';
 import 'package:vegnbio/dto/location.dart';
 
 class Event {
-  final String restaurantId;
+  final String canteenId;
   final String title;
   final String desc;
-  final String category;
+  final String type;
   final Location location;
   final DateTime startDate;
   final DateTime endDate;
@@ -12,10 +13,10 @@ class Event {
   final List<String> participantsIds;
 
   Event({
-    required this.restaurantId,
+    required this.canteenId,
     required this.title,
     required this.desc,
-    required this.category,
+    required this.type,
     required this.location,
     required this.startDate,
     required this.endDate,
@@ -24,30 +25,34 @@ class Event {
   });
 
   factory Event.fromJson(Map<String,dynamic> json){
+    final dateFormat =  DateFormat("dd-MM-yyyy");
     return Event(
-        restaurantId: json['restaurantId']?.toString() ?? '',
+        canteenId: json['restaurantId']?.toString() ?? '',
         title: json['title']?.toString() ?? '',
         desc: json['desc']?.toString() ?? '',
-        category: json['category'],
+        type: json['type']?.toString() ?? '',
         location: Location.fromJson(json['location'] ?? {}),
-        startDate: json['startDate'] != null ? DateTime.parse(json['startDate'].toString()) : DateTime.now(),
-        endDate: json['endDate'] != null ? DateTime.parse(json['endDate'].toString()) : DateTime.now(),
+        startDate: json['startDate'] != null 
+            ? dateFormat.parse(json['startDate'].toString())
+            : DateTime.now(),
+        endDate: json['endDate'] != null
+            ? dateFormat.parse(json['endDate'].toString())
+            : DateTime.now(),
         pictures: (json['pictures'] as List?)?.map((e) => e.toString()).toList() ?? [],
         participantsIds: (json['participantsIds'] as List?)?.map((e) => e.toString()).toList() ?? [],
 
     );
   }
 
-
   @override
   String toString() {
     // TODO: implement toString
     return '''
     {
-        "restaurantId": "$restaurantId",
+        "canteenId": "$canteenId",
         "title": "$title",
         "desc": "$desc",
-        "category": "$category",
+        "type": "$type",
         "location": "$location",
         "startDate": "$startDate",
         "endDate": "$endDate",

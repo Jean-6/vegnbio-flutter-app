@@ -88,7 +88,7 @@ class EventCard extends StatelessWidget {
                   const SizedBox(height: 8),
 
                   /*Place*/
-                  Row(
+                  /*Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween ,
                     children: [
                       const Icon(Icons.location_on, size: 16, color: Colors.grey),
@@ -97,14 +97,14 @@ class EventCard extends StatelessWidget {
                         child: Text('${event.location.address}, ${event.location.city}'+'(${event.location.postalCode})', overflow: TextOverflow.ellipsis)
                       ),
                     ],
-                  ),
+                  ),*/
                   const SizedBox(height: 4),
                   Row(
                     children: [
                       const Icon(Icons.label, size: 16, color: Colors.grey),
                       const SizedBox(width: 6),
                       Expanded(
-                          child:  Text('${event.category}',style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Colors.black87)),
+                          child:  Text(event.type,style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Colors.black87)),
                       ),
 
                     ],

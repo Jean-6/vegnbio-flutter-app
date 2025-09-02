@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:logger/logger.dart';
 import 'package:vegnbio/dto/event.dart';
+import 'package:vegnbio/dto/event_filter.dart';
 
 import '../../core/services/credential_storage_helper.dart';
 
@@ -11,16 +12,13 @@ class EventService {
   final _baseUrl = Uri.parse("http://172.20.10.5:8082");
   final authHelper = CredentialStorageHelper();
 
-  Future<List<Event>?> fetchEvents({
-    String? restaurantId,
-    DateTime? startDate,
-    DateTime? endDate,
-  }) async {
+  Future<List<Event>?> fetchWithFilters({required EventFilter eventFilter}) async {
 
     final queryParameters = {
-      if (restaurantId != null) 'restaurantId': restaurantId,
-      if (startDate != null) 'startDate': startDate,
-      if (endDate != null) 'endDate': endDate,
+      if (eventFilter.canteenId != null) 'canteenId': eventFilter.canteenId,
+      if (eventFilter.type != null) 'type': eventFilter.type,
+      if (eventFilter.startDate != null) 'startDate': eventFilter.startDate,
+      if (eventFilter.endDate != null) 'endDate': eventFilter.endDate,
     };
 
     final basicAuth = await authHelper.readBasicAuthHeader();

@@ -58,3 +58,10 @@ const List<String> countries = [
   "Nigeria",
 ];
 
+const List<String> eventType = [
+  'Dégustation',
+  'Atélier',
+  'Conférence',
+  'Autre',
+];
+
