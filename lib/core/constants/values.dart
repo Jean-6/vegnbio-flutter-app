@@ -69,4 +69,28 @@ const List<String> dishType = [
   'Entrée', 'Plat', 'Dessert', 'Boisson'
 ];
 
+const List<String> bookingType = [
+  'Evenement',
+  'Table',
+  'Salle',
+];
 
+const Map<String, String> dayTranslations = {
+  "MONDAY": "Lundi",
+  "TUESDAY": "Mardi",
+  "WEDNESDAY": "Mercredi",
+  "THURSDAY": "Jeudi",
+  "FRIDAY": "Vendredi",
+  "SATURDAY": "Samedi",
+  "SUNDAY": "Dimanche",
+};
+
+const List<String> daysOrder = [
+  "MONDAY",
+  "TUESDAY",
+  "WEDNESDAY",
+  "THURSDAY",
+  "FRIDAY",
+  "SATURDAY",
+  "SUNDAY"
+];

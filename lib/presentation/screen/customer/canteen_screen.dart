@@ -96,7 +96,7 @@ class CanteenScreenState extends State<CanteenScreen> {
     }
   }
 
-  Future<void> _selectTime(BuildContext context) async {
+  /*Future<void> _selectTime(BuildContext context) async {
     final TimeOfDay? picked = await showTimePicker(
       context: context,
       initialTime: TimeOfDay.now(),
@@ -108,7 +108,7 @@ class CanteenScreenState extends State<CanteenScreen> {
         selectedTime = picked;
       });
     }
-  }
+  }*/
 
   @override
   void initState() {
@@ -360,11 +360,17 @@ class CanteenScreenState extends State<CanteenScreen> {
                     width: double.infinity,
                     child: ElevatedButton.icon(
                       onPressed: _filterCanteens,
-                      icon: const Icon(Icons.search),
-                      label: const Text("Rechercher"),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF4CAF50),
                         padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                      icon: const Icon(Icons.search),
+                      label: const Text(
+                        "Rechercher",
+                        style: TextStyle(color: Colors.white, fontSize: 16),
                       ),
                     ),
                   ),
@@ -379,7 +385,7 @@ class CanteenScreenState extends State<CanteenScreen> {
             child: _isLoading
                 ? const Center(child: CircularProgressIndicator())
                 : filteredCanteens.isEmpty
-                ? const Center(child: Text("Aucun événement trouvé"))
+                ? const Center(child: Text("Aucun restaurant trouvé"))
                 : ListView.builder(
                     itemCount: filteredCanteens.length,
                     itemBuilder: (context, index) {

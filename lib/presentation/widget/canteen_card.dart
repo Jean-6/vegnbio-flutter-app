@@ -102,10 +102,10 @@ class CanteenCard extends StatelessWidget {
                     style: TextStyle(fontWeight: FontWeight.w500),
                   ),
 
-                  SizedBox(height: 8),
-                  Text("📍 3 Promenade des Anglais, Nice"),
+                  /*SizedBox(height: 8),
+                  Text("📍 3 Promenade des Anglais, Nice"),*/
 
-                  Row(
+                  /*Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
                       TextButton.icon(
@@ -127,7 +127,7 @@ class CanteenCard extends StatelessWidget {
                         label: Text("Carte"),
                       ),
                     ],
-                  ),
+                  ),*/
                 ],
               ),
             ),

@@ -3,6 +3,7 @@ import 'package:flutter_carousel_slider/carousel_slider.dart';
 import 'package:vegnbio/presentation/widget/room_booking_form.dart';
 import 'package:vegnbio/presentation/widget/table_booking_form.dart';
 
+import '../../../core/constants/values.dart';
 import '../../../dto/canteen.dart';
 
 class CanteenDetailScreen extends StatefulWidget {
@@ -46,14 +47,18 @@ class _CanteenDetailScreenState extends State<CanteenDetailScreen>
 
   Widget _sectionTitle(String title, IconData icon) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+      padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
       child: Row(
         children: [
-          Icon(icon, color: Colors.blue),
+          Icon(icon, color: const Color(0xFF4CAF50)),
           const SizedBox(width: 8),
           Text(
             title,
-            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            style: const TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: Color(0xFF333333),
+            ),
           ),
         ],
       ),
@@ -62,13 +67,70 @@ class _CanteenDetailScreenState extends State<CanteenDetailScreen>
 
   Widget _reviewItem(String author, String content) {
     return Card(
-      margin: const EdgeInsets.symmetric(vertical: 6),
+      margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      elevation: 3,
       child: ListTile(
-        leading: const Icon(Icons.person),
-        title: Text(author),
+        leading: CircleAvatar(
+          backgroundColor: const Color(0xFF4CAF50),
+          child: const Icon(Icons.person, color: Colors.white),
+        ),
+        title: Text(
+          author,
+          style: const TextStyle(fontWeight: FontWeight.bold),
+        ),
         subtitle: Text(content),
       ),
     );
+  }
+
+
+  List<Map<String, dynamic>> _groupOpeningHours(Map<String, dynamic> openingHourMap) {
+    final orderedEntries = daysOrder
+        .where((day) => openingHourMap.containsKey(day))
+        .map((day) => MapEntry(day, openingHourMap[day]))
+        .toList();
+
+    List<Map<String, dynamic>> grouped = [];
+    String? currentStartDay;
+    String? currentEndDay;
+    var currentHours;
+
+    for (var entry in orderedEntries) {
+      final translatedDay = dayTranslations[entry.key] ?? entry.key;
+      final hours = entry.value;
+
+      if (currentHours == null) {
+        currentStartDay = translatedDay;
+        currentEndDay = translatedDay;
+        currentHours = hours;
+      } else if (hours.openingTime == currentHours.openingTime &&
+          hours.closeTime == currentHours.closeTime) {
+        currentEndDay = translatedDay;
+      } else {
+        grouped.add({
+          "days": currentStartDay == currentEndDay
+              ? currentStartDay
+              : "$currentStartDay - $currentEndDay",
+          "hours": "${currentHours.openingTime} - ${currentHours.closeTime}",
+        });
+
+        currentStartDay = translatedDay;
+        currentEndDay = translatedDay;
+        currentHours = hours;
+      }
+    }
+
+    if (currentHours != null) {
+      grouped.add({
+        "days": currentStartDay == currentEndDay
+            ? currentStartDay
+            : "$currentStartDay - $currentEndDay",
+        "hours": "${currentHours.openingTime} - ${currentHours.closeTime}",
+      });
+    }
+
+    return grouped;
   }
 
   @override
@@ -76,8 +138,18 @@ class _CanteenDetailScreenState extends State<CanteenDetailScreen>
     final canteen = widget.canteen;
 
     return Scaffold(
+      backgroundColor: const Color(0xFFF8F9FA),
       appBar: AppBar(
-        title: Text(canteen.name, maxLines: 1, overflow: TextOverflow.ellipsis),
+        title: Text(
+          canteen.name,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: const TextStyle(
+              color: Colors.white),
+        ),
+        backgroundColor: const Color(0xFF4CAF50),
+        centerTitle: true,
+        elevation: 4,
       ),
       body: Column(
         children: [
@@ -149,14 +221,32 @@ class _CanteenDetailScreenState extends State<CanteenDetailScreen>
                   _sectionTitle("Présentation", Icons.info),
                   Padding(
                     padding: const EdgeInsets.all(16.0),
-                    child: Text(canteen.desc),
+                    child: Text(
+                      canteen.desc,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        height: 1.4,
+                        color: Color(0xFF555555),
+                      ),
+                    ),
                   ),
+
+                  // Booking button
+
                   Padding(
-                    padding: const EdgeInsets.all(8.0),
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                     child: Row(
                       children: <Widget>[
                         Expanded(
                           child: ElevatedButton.icon(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFF4CAF50),
+                              foregroundColor: Colors.white,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              padding: const EdgeInsets.symmetric(vertical: 14),
+                            ),
                             onPressed: () async {
                               final result = await showDialog<bool>(
                                 context: context,
@@ -183,7 +273,7 @@ class _CanteenDetailScreenState extends State<CanteenDetailScreen>
                               );
 
                               if (result == true) {
-                                // ✅ Affiche une alerte de succès
+                                //Affiche une alerte de succès
                                 showDialog(
                                   context: context,
                                   builder: (context) {
@@ -216,6 +306,14 @@ class _CanteenDetailScreenState extends State<CanteenDetailScreen>
                         const SizedBox(width: 12), // espace entre les boutons
                         Expanded(
                           child: ElevatedButton.icon(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFF388E3C),
+                              foregroundColor: Colors.white,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              padding: const EdgeInsets.symmetric(vertical: 14),
+                            ),
                             onPressed: () async {
                               final result = await showDialog<bool>(
                                 context: context,
@@ -272,58 +370,26 @@ class _CanteenDetailScreenState extends State<CanteenDetailScreen>
                             label: const Text("Réserver une salle"),
                           ),
 
-                          /*
-                            onPressed: () {
-                              showDialog(
-                                context: context,
-                                builder: (context) {
-                                  return Dialog(
-                                    insetPadding: EdgeInsets.zero,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
-                                    child: ConstrainedBox(
-                                      constraints: BoxConstraints(
-                                        maxWidth: 500,
-                                        maxHeight: 350,
-                                      ),
-                                      child: RoomBookingForm(
-                                        onReserved: () {
-                                          Navigator.pop(context);
-                                        },
-                                        canteenId: canteen.id,
-                                      ),
-                                    ),
-                                  );
-                                },
-                              );
-                            },
-                            icon: const Icon(Icons.meeting_room),
-                            label: const Text("Réserver une salle"),
-                          ),*/
                         ),
                       ],
                     ),
                   ),
 
-                  //if(_showRoomForm)
                   Container(key: _horairesKey),
                   _sectionTitle("Horaires", Icons.access_time),
                   Padding(
                     padding: const EdgeInsets.all(16.0),
                     child: Column(
-                      children: canteen.openingHourMap.entries.map((entry) {
-                        final day = entry.key;
-                        final hours = entry.value;
-                        return Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(day),
-                            Text(
-                              "${hours.openingTime} -"
-                              "${hours.closeTime}",
-                            ),
-                          ],
+                      children: _groupOpeningHours(canteen.openingHourMap).map((entry) {
+                        return Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 4),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(entry["days"], style: const TextStyle(fontWeight: FontWeight.w600)),
+                                Text(entry["hours"], style: const TextStyle(color: Colors.black54)),
+                              ],
+                        ),
                         );
                       }).toList(),
                     ),
@@ -334,7 +400,12 @@ class _CanteenDetailScreenState extends State<CanteenDetailScreen>
                   _sectionTitle("Localisation", Icons.location_on),
                   Padding(
                     padding: const EdgeInsets.all(16.0),
-                    child: Text("📍 ${canteen.location.address}"),
+                    child: Text("📍 ${canteen.location.address} ${canteen.location.city} ${canteen.location.postalCode}",
+                      style: const TextStyle(
+                        fontSize: 16,
+                        color: Colors.black87
+                      ),
+                    ),
                   ),
 
                   // Avis
