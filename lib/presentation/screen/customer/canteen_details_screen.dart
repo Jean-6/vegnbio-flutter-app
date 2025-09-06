@@ -259,7 +259,7 @@ class _CanteenDetailScreenState extends State<CanteenDetailScreen>
                                     child: ConstrainedBox(
                                       constraints: BoxConstraints(
                                         maxWidth: 500,
-                                        maxHeight: 350,
+                                        maxHeight: 400,
                                       ),
                                       child: TableBookingForm(
                                         onReserved: () {
@@ -326,7 +326,7 @@ class _CanteenDetailScreenState extends State<CanteenDetailScreen>
                                     child: ConstrainedBox(
                                       constraints: BoxConstraints(
                                         maxWidth: 500,
-                                        maxHeight: 350,
+                                        maxHeight: 405,
                                       ),
                                       child: RoomBookingForm(
                                         onReserved: () {
@@ -366,7 +366,7 @@ class _CanteenDetailScreenState extends State<CanteenDetailScreen>
                                 setState(() {});
                               }
                             },
-                            icon: const Icon(Icons.local_post_office),
+                            icon: const Icon(Icons.meeting_room),
                             label: const Text("Réserver une salle"),
                           ),
 
