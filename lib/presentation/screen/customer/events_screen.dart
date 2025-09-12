@@ -109,12 +109,12 @@ class EventsScreenState extends State<EventsScreen> {
     }
   }
 
-  String _formatDate(DateTime? date) {
+  /*String _formatDate(DateTime? date) {
     if (date == null) return "Choir une date de debut";
     return "$date{date.year}-${date.month.toString().padLeft(2, '0')} - ${date.day.toString().padLeft(2, '0')}";
-  }
+  }*/
 
-  Future<void> _selectDate(BuildContext context, bool isStart) async {
+  /*Future<void> _selectDate(BuildContext context, bool isStart) async {
     final picked = await showDatePicker(
       context: context,
       locale: const Locale('fr', ''), // important pour avoir les libellés FR
@@ -132,9 +132,9 @@ class EventsScreenState extends State<EventsScreen> {
         }
       });
     }
-  }
+  }*/
 
-  void _showCustomDatePicker(bool isStart) async {
+  /*void _showCustomDatePicker(bool isStart) async {
     final pickedDate = await DatePickerService.showCustomDatePicker(
       context,
       initialDate: DateTime.now(),
@@ -148,7 +148,7 @@ class EventsScreenState extends State<EventsScreen> {
         }
       });
     }
-  }
+  }*/
 
   @override
   void initState() {
@@ -351,7 +351,7 @@ class EventsScreenState extends State<EventsScreen> {
                           backgroundColor: const Color(0xFF4CAF50),
                           padding: const EdgeInsets.symmetric(vertical: 14),
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
+                            borderRadius: BorderRadius.circular(12),
                           ),
                         ),
                         icon: const Icon(Icons.search, color: Colors.white),

@@ -15,7 +15,7 @@ class EventCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () {},
+      onTap: onTap,
       child: Container(
         margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
         padding: const EdgeInsets.all(12),
