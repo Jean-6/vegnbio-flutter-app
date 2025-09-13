@@ -17,10 +17,10 @@ class Location{
 
   factory Location.fromJson(Map<String, dynamic> json){
     return Location(
-      address: json['address'],
-      city:json['city'],
-      postalCode:json['postalCode'],
-      country: json['country']
+      address: json['address']?.toString() ?? '',
+      city:json['city']?.toString() ?? '',
+      postalCode:json['postalCode']?.toString() ?? '',
+      country: json['country']?.toString() ?? ''
     );
   }
 
