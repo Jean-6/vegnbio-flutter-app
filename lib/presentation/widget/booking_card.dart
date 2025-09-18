@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:vegnbio/core/constants/values.dart';
 
 import '../../dto/booking.dart';
-import '../../dto/event.dart';
 
 class BookingCard extends StatelessWidget {
   final Booking booking;
@@ -12,15 +12,23 @@ class BookingCard extends StatelessWidget {
 
   String _getDefaultImage(String type) {
     switch (type.toUpperCase()) {
-      case "TABLE": // Réservation resto
+      case "TABLE":
         return "https://cdn-icons-png.flaticon.com/512/706/706164.png";
-      case "ROOM": // Réservation salle
+      case "ROOM":
         return "https://cdn-icons-png.flaticon.com/512/3076/3076697.png";
-      case "EVENT": // Réservation événement
+      case "EVENT":
         return "https://cdn-icons-png.flaticon.com/512/747/747968.png";
-      default: // Icône générique
+      default:
         return "https://cdn-icons-png.flaticon.com/512/1829/1829589.png";
     }
+  }
+
+  String formatManual(DateTime date) {
+
+    String jour = days[date.weekday - 1];
+    String moisNom = months[date.month - 1];
+
+    return "$jour ${date.day} $moisNom ${date.year}";
   }
 
   @override
@@ -28,7 +36,7 @@ class BookingCard extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        width: double.infinity, // <-- important pour Row + Expanded
+        width: double.infinity,
         margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
@@ -112,9 +120,27 @@ class BookingCard extends StatelessWidget {
                     ],
                   ),
                   const SizedBox(height: 6),
-
-                  // Horaires
+                  //Dates
                   Row(
+                    children: [
+                      const Icon(
+                        Icons.access_time,
+                        size: 16,
+                        color: Colors.grey,
+                      ),
+                      const SizedBox(width: 6),
+                      Text(
+                        "${formatManual(booking.date)} | ${booking.startTime.hour.toString().padLeft(2, '0')}:${booking.startTime.minute.toString().padLeft(2, '0')} - ${booking.endTime.hour.toString().padLeft(2, '0')}:${booking.endTime.minute.toString().padLeft(2, '0')}",
+                        style: const TextStyle(
+                          fontSize: 14,
+                          color: Colors.black87,
+                        ),
+                      ),
+                    ],
+                  ),
+                  //const SizedBox(height: 6),
+                  // Horaires
+                  /*Row(
                     children: [
                       const Icon(
                         Icons.access_time,
@@ -131,7 +157,7 @@ class BookingCard extends StatelessWidget {
                         ),
                       ),
                     ],
-                  ),
+                  ),*/
                   const SizedBox(height: 6),
 
                   // Type de réservation (EVENT / ROOM / TABLE)
