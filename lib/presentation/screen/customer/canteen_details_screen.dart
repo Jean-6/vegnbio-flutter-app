@@ -408,6 +408,8 @@ class _CanteenDetailScreenState extends State<CanteenDetailScreen>
                     ),
                   ),
 
+                /**button**/
+
                   // Avis
                   Container(key: _avisKey),
                   _sectionTitle("Avis", Icons.star),
@@ -429,76 +431,6 @@ class _CanteenDetailScreenState extends State<CanteenDetailScreen>
           ),
         ],
 
-        /*Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-            // Localisation
-            Container(key: _locationKey),
-            _sectionTitle("Localisation", icon: Icons.location_on),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: Text("📍 ${canteen.location.address}"),
-            ),
-
-            // Description
-            Container(key: _descriptionKey),
-            _sectionTitle("Description", icon: Icons.info),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: Text(canteen.desc),
-            ),
-
-            // Équipements
-            Container(key: _equipmentsKey),
-            _sectionTitle("Équipements", icon: Icons.build),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: Wrap(
-                spacing: 12,
-                children: [
-                  if (canteen.equipments.contains("wifi"))
-                    Chip(label: Text("Wi-Fi")),
-                  if (canteen.equipments.contains("printer"))
-                    Chip(label: Text("Imprimante")),
-                  Chip(label: Text("${canteen.seats} places")),
-                ],
-              ),
-            ),
-
-            // Contact
-            Container(key: _contactKey),
-            _sectionTitle("Contact", icon: Icons.phone),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: Row(
-                children: [
-                  TextButton.icon(
-                    onPressed: () {},
-                    icon: Icon(Icons.phone),
-                    label: Text("Appeler"),
-                  ),
-                  TextButton.icon(
-                    onPressed: () {},
-                    icon: Icon(Icons.email),
-                    label: Text("Envoyer un email"),
-                  ),
-                ],
-              ),
-            ),
-
-            // Tags
-            Container(key: _tagsKey),
-            _sectionTitle("Tags", icon: Icons.label),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: Wrap(
-                spacing: 8,
-                children: canteen.tags
-                    .map((tag) => Chip(label: Text(tag)))
-                    .toList(),
-              ),
-            ),
-          ],
-        ),*/
       ),
     );
   }

@@ -82,34 +82,6 @@ class CanteenScreenState extends State<CanteenScreen> {
     }
   }
 
-  Future<void> _pickTime() async {
-    final TimeOfDay? picked = await showTimePicker(
-      context: context,
-      initialTime: TimeOfDay.now(),
-      helpText: "Choisir l'heure",
-    );
-
-    if (picked != null) {
-      setState(() {
-        selectedTime = picked;
-      });
-    }
-  }
-
-  /*Future<void> _selectTime(BuildContext context) async {
-    final TimeOfDay? picked = await showTimePicker(
-      context: context,
-      initialTime: TimeOfDay.now(),
-      helpText: "Sélectionne une heure",
-    );
-
-    if (picked != null && picked != selectedTime) {
-      setState(() {
-        selectedTime = picked;
-      });
-    }
-  }*/
-
   @override
   void initState() {
     super.initState();
