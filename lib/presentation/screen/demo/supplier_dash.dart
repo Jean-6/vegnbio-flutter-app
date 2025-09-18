@@ -2,116 +2,154 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:vegnbio/presentation/screen/supplier/marketplace_screen.dart';
 import 'package:vegnbio/presentation/screen/supplier/place_offer_screen.dart';
 
 import '../../../core/constants/strings.dart';
+import '../../../core/services/secure_storage_service.dart';
 import '../../widget/content_card.dart';
+import '../supplier/my_supplier_screen.dart';
 
-class SupplierDash extends StatelessWidget {
+class SupplierDash extends StatefulWidget {
+  const SupplierDash({super.key});
+
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Stylish Dashboard',
-      theme: ThemeData(
-        textTheme: GoogleFonts.poppinsTextTheme(),
-        primarySwatch: Colors.blue,
-      ),
-      home: SupplierDashScreen(),
-      debugShowCheckedModeBanner: false,
-    );
-  }
+  State<StatefulWidget> createState() => _SupplierDashState();
 }
 
-class SupplierDashScreen extends StatelessWidget {
-  const SupplierDashScreen({super.key});
+
+class _SupplierDashState extends State<SupplierDash> {
+  int _currentIndex = 0;
+  String? userName;
+  String? email;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserData();
+  }
+
+  Future<void> _loadUserData() async {
+    final storedName = await SecureStorageService.getUsername();
+    final storedEmail = await SecureStorageService.getUserEmail();
+
+    setState(() {
+      userName = storedName;
+      email = storedEmail;
+    });
+  }
+
 
   @override
   Widget build(BuildContext context) {
+    final List<Widget> _pages = [
+      _buildHomePage(),
+      const Center(child: Text("Member Page")),
+      const Center(child: Text("Communauté Page")),
+      MySupplierScreen(userName: userName ?? '', email: email ?? ''),
+    ];
     return Scaffold(
+      body: _pages[_currentIndex],
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: 1,
         selectedItemColor: Colors.blueAccent,
         unselectedItemColor: Colors.grey,
+        onTap: (index) {
+          setState(() {
+            _currentIndex = index;
+          });
+        },
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
           BottomNavigationBarItem(icon: Icon(Icons.person), label: "Member"),
-          BottomNavigationBarItem(icon: Icon(Icons.add), label: ""),
           BottomNavigationBarItem(icon: Icon(Icons.message), label: "Messages"),
           BottomNavigationBarItem(icon: Icon(Icons.account_circle), label: "My"),
         ],
       ),
-      body: SafeArea(
-        child: ListView(
-          padding: EdgeInsets.all(16),
-          children: [
-            Text(
-              Strings.dashboardTitle,
-              style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-            ),
-            SizedBox(height: 16),
-            Container(
-              height: 150,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(16),
-                gradient: LinearGradient(
-                  colors: [Colors.blue.shade800, Colors.blue.shade400],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-              ),
-              padding: EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(Strings.appName,
-                      style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold)),
-                  Spacer(),
-                  Row(
-                    children: [
-                      Icon(Icons.layers, color: Colors.white),
-                      SizedBox(width: 8),
-                      Text("PRODUCTS", style: TextStyle(color: Colors.white)),
-                    ],
-                  )
-                ],
+    );
+  }
+
+  Widget _buildHomePage() {
+    return SafeArea(
+      child: ListView(
+        padding: const EdgeInsets.all(16),
+        children: [
+          Text(
+            Strings.dashboardTitle,
+            style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 16),
+          Container(
+            height: 150,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(16),
+              gradient: LinearGradient(
+                colors: [Colors.blue.shade800, Colors.blue.shade400],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
               ),
             ),
-            SizedBox(height: 20),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _iconBox(Icons.upload_file, "Deposer une offre",(){
-                  Navigator.push(
-                      context,
-                    MaterialPageRoute(builder: (_) => PlaceOfferScreen()),
-                  );
-                }),
-                _iconBox(Icons.store, "Marché", (){
-
-                }),
-                _iconBox(Icons.history, "Transactions", (){
-
-                }),
-                _iconBox(Icons.bar_chart, "Stats", (){
-
-                }),
+                Text(Strings.appName,
+                    style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold)),
+                const Spacer(),
+                const Row(
+                  children: [
+                    Icon(Icons.layers, color: Colors.white),
+                    SizedBox(width: 8),
+                    Text("PRODUCTS", style: TextStyle(color: Colors.white)),
+                  ],
+                )
               ],
             ),
-            SizedBox(height: 30),
-            Text("Newest", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-            SizedBox(height: 16),
-            ContentCard(
-                title: "Notre Dame de Paris",
-                desc: "You can try to write a letter to yourself in the future.",
-                rating: "4.9",
-                imagePath: 'assets/images/logo.png',
-                onTap: (){})
-          ],
-        ),
+          ),
+          const SizedBox(height: 20),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              _iconBox(Icons.upload_file, "Deposer une offre",(){
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => PlaceOfferScreen()),
+                );
+              }),
+              _iconBox(Icons.store, "Marché", (){
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => MarketplaceScreen()),
+                );
+              }),
+              _iconBox(Icons.history, "Transactions", (){
+
+              }),
+              _iconBox(Icons.bar_chart, "Stats", (){
+
+              }),
+            ],
+          ),
+          const SizedBox(height: 30),
+          const Text("Newest",
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+          const SizedBox(height: 16),
+          ContentCard(
+              title: "Notre Dame de Paris",
+              desc: "You can try to write a letter to yourself in the future.",
+              rating: "4.9",
+              imagePath: 'assets/images/logo.png',
+              onTap: () {}),
+          ContentCard(
+              title: "Notre Dame de Paris",
+              desc: "You can try to write a letter to yourself in the future.",
+              rating: "4.9",
+              imagePath: 'assets/images/logo.png',
+              onTap: () {}),
+        ],
       ),
     );
   }
