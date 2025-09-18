@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_carousel_slider/carousel_slider.dart';
+import '../../../core/constants/values.dart';
 import '../../../dto/event.dart';
 import '../../widget/event_booking_form.dart';
 
@@ -18,17 +19,17 @@ class _EventDetailScreenState extends State<EventDetailScreen>
   final ScrollController _scrollController = ScrollController();
 
   String formatManual(DateTime date) {
-    const jours = [
+    const days = [
       "Lundi", "Mardi", "Mercredi", "Jeudi",
       "Vendredi", "Samedi", "Dimanche"
     ];
-    const mois = [
+    const month = [
       "janvier", "février", "mars", "avril", "mai", "juin",
       "juillet", "août", "septembre", "octobre", "novembre", "décembre"
     ];
 
-    String jour = jours[date.weekday - 1];
-    String moisNom = mois[date.month - 1];
+    String jour = days[date.weekday - 1];
+    String moisNom = months[date.month - 1];
 
     return "$jour ${date.day} $moisNom ${date.year}";
   }
@@ -79,7 +80,7 @@ class _EventDetailScreenState extends State<EventDetailScreen>
   void initState() {
     // TODO: implement initState
     super.initState();
-    _tabController = TabController(length: 5, vsync: this);
+    _tabController = TabController(length: 4, vsync: this);
 
   }
 

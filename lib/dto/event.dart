@@ -28,8 +28,6 @@ class Event {
   });
 
   factory Event.fromJson(Map<String,dynamic> json){
-
-
     String dateStr = json['date'] ?? '';
     String startTimeStr = json['startTime'] ?? '00:00';
     String endTimeStr = json['endTime'] ?? '00:00';

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
 import 'package:vegnbio/core/constants/values.dart';
-import 'package:vegnbio/core/services/date_picker_service.dart';
 import 'package:vegnbio/domain/services/canteen_service.dart';
 import 'package:vegnbio/domain/services/event_service.dart';
 import 'package:vegnbio/dto/canteen.dart';
@@ -79,6 +78,7 @@ class EventsScreenState extends State<EventsScreen> {
       setState(() {
         filteredEvents = events!;
       });
+      logger.d('Load all Events : $filteredEvents');
     } catch (e) {
       ScaffoldMessenger.of(
         context,
