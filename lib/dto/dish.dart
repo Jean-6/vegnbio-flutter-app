@@ -1,11 +1,10 @@
 import 'diet.dart';
-import 'Type.dart';
+import 'type.dart';
 
 class Dish {
   final String id;
   final String name;
   final String desc;
-  final double price;
   final Type type;
   final List<String> allergens;
   final List<String> pictures;
@@ -15,7 +14,6 @@ class Dish {
     required this.id,
     required this.name,
     required this.desc,
-    required this.price,
     required this.type,
     required this.allergens,
     required this.pictures,
@@ -23,22 +21,16 @@ class Dish {
   });
 
   factory Dish.fromJson(Map<String, dynamic> json) {
-    double _toDouble(dynamic value) {
-      if (value == null) return 0;
-      if (value is num) return value.toDouble();
-      if (value is String) return double.tryParse(value) ?? 0;
-      return 0;
-    }
+
     return Dish(
       id: json['id']?.toString() ?? '',
       name: json['name']?.toString() ?? '',
       desc: json['desc']?.toString() ?? '',
-      price: _toDouble(json['price']!= null) ,
       type: Type.fromString(json['type'].toString() ?? 'Other'),
       allergens: (json['allergens'] != null) ? List<String>.from(json['allergens']) : [],
       pictures: (json['pictures'] !=null ) ? List<String>.from(json['pictures']) : [],
-        diet: (json['dietType'] != null)
-            ? (json['dietType'] as List<dynamic>)
+        diet: (json['diet'] != null)
+            ? (json['diet'] as List<dynamic>)
             .where((e) => e != null)
             .map((e) => Diet.fromString(e.toString()))
             .toSet()
@@ -51,7 +43,6 @@ class Dish {
       'id' : id,
       'name': name,
       'desc': desc,
-      'price' : price
     };
   }
 
@@ -63,7 +54,6 @@ class Dish {
       "id": "$id",
       "name": "$name",
       "desc": "$desc",
-      "price": "$price",
       "type": "$type",
       "allergens": "$allergens",
       "pictures": "$pictures",
