@@ -48,4 +48,12 @@ class CredentialStorageHelper {
     logger.e('Credentials missing');
     return null;
   }
+
+  Future<void> clearCredentials() async {
+    await secureStorage.delete(key: 'username');
+    await secureStorage.delete(key: 'password');
+    logger.i("✅ Credentials supprimés");
+  }
+
+
 }
