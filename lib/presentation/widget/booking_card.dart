@@ -24,7 +24,6 @@ class BookingCard extends StatelessWidget {
   }
 
   String formatManual(DateTime date) {
-
     String jour = days[date.weekday - 1];
     String moisNom = months[date.month - 1];
 
@@ -89,7 +88,7 @@ class BookingCard extends StatelessWidget {
                       const SizedBox(width: 6),
                       Expanded(
                         child: Text(
-                          booking.canteenName,
+                          booking.canteenInfo.name,
                           style: const TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w500,
@@ -105,11 +104,17 @@ class BookingCard extends StatelessWidget {
                   // Localisation
                   Row(
                     children: [
-                      const Icon(Icons.location_on, size: 16, color: Colors.grey),
+                      const Icon(
+                        Icons.location_on,
+                        size: 16,
+                        color: Colors.grey,
+                      ),
                       const SizedBox(width: 6),
                       Expanded(
                         child: Text(
-                          "${booking.location.address}, ${booking.location.city} (${booking.location.postalCode})",
+                          booking.location != null
+                              ? "${booking.location!.address ?? ''}, ${booking.location!.city ?? ''} (${booking.location!.postalCode ?? ''})"
+                              : "Adresse non disponible",
                           style: const TextStyle(
                             fontSize: 13,
                             color: Colors.black54,
@@ -117,6 +122,7 @@ class BookingCard extends StatelessWidget {
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
+
                     ],
                   ),
                   const SizedBox(height: 6),
@@ -139,27 +145,7 @@ class BookingCard extends StatelessWidget {
                     ],
                   ),
                   //const SizedBox(height: 6),
-                  // Horaires
-                  /*Row(
-                    children: [
-                      const Icon(
-                        Icons.access_time,
-                        size: 16,
-                        color: Colors.grey,
-                      ),
-                      const SizedBox(width: 6),
-                      Text(
-                        "${booking.startTime.hour.toString().padLeft(2, '0')}:${booking.startTime.minute.toString().padLeft(2, '0')} "
-                        "- ${booking.endTime.hour.toString().padLeft(2, '0')}:${booking.endTime.minute.toString().padLeft(2, '0')}",
-                        style: const TextStyle(
-                          fontSize: 14,
-                          color: Colors.black87,
-                        ),
-                      ),
-                    ],
-                  ),*/
                   const SizedBox(height: 6),
-
                   // Type de réservation (EVENT / ROOM / TABLE)
                   Row(
                     children: [

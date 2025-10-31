@@ -4,22 +4,42 @@
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;
+import 'package:intl/intl.dart';
 import 'package:logger/logger.dart';
 import 'package:vegnbio/core/services/secure_storage_service.dart';
 import 'package:vegnbio/dto/booking.dart';
 import 'package:vegnbio/dto/booking_filter.dart';
-import 'package:vegnbio/dto/table_booking.dart';
 
 import '../../core/services/credential_storage_helper.dart';
 import '../../dto/event_booking.dart';
 import '../../dto/response_wrapper.dart';
-import '../../dto/room_booking.dart';
 
 class BookingService {
 
   final logger = Logger();
   final _baseUrl = Uri.parse("http://172.20.10.5:8082");
   final authHelper = CredentialStorageHelper();
+
+
+
+  Future<List<RoomBooking>> fetchRoomBookings(String canteenId) async {
+    try {
+      final url = Uri.parse("$_baseUrl/api/booking/room?canteenId=$canteenId");
+      final res = await http.get(url);
+
+      if (res.statusCode == 200) {
+        final List<dynamic> jsonList = json.decode(res.body)['data'];
+        return jsonList.map((json) => RoomBooking.fromJson(json)).toList();
+      } else {
+        logger.e('Erreur fetchRoomBookings: ${res.statusCode}');
+        return [];
+      }
+    } catch (e) {
+      logger.e('Erreur fetchRoomBookings: $e');
+      return [];
+    }
+  }
+  
 
 
   Future<List<Booking>?> fetchWithFilters({required BookingFilter bookingFilter}) async {
@@ -32,14 +52,16 @@ class BookingService {
 
     final queryParameters = {
       if (bookingFilter.type != null) 'type': bookingFilter.type,
-      if (bookingFilter.startDate != null) 'startDate': bookingFilter.startDate,
-      if (bookingFilter.endDate != null) 'endDate': bookingFilter.endDate,
+      if (bookingFilter.startDate != null)
+        'startDate': DateFormat('yyyy-MM-dd').format(bookingFilter.startDate!),
+      if (bookingFilter.endDate != null)
+        'endDate': DateFormat('yyyy-MM-dd').format(bookingFilter.endDate!),
       if (bookingFilter.userId != null) 'userId': bookingFilter.userId,
     };
 
 
     final url = Uri.parse(
-        "$_baseUrl/api/booking")
+        "$_baseUrl/api/booking/user")
     .replace(queryParameters: queryParameters);
 
     final res = await http.get(url);
@@ -53,6 +75,11 @@ class BookingService {
             .toList(),
       );
       logger.d('>> Parsed booking (full field): ${rw.data}');
+
+      logger.d('>> Response data: ${json.decode(res.body)['data']}');
+      for (var element in json.decode(res.body)['data']) {
+        logger.d('Item raw: $element');
+      }
       return rw.data;
     }else{
       logger.e('>> Error when fetching bookings: ${res.statusCode}');

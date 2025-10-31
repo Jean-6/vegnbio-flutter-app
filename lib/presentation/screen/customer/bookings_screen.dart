@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:logger/logger.dart';
@@ -17,7 +19,6 @@ class BookingsScreen extends StatefulWidget {
 }
 
 class _BookingsScreenState extends State<BookingsScreen> {
-
   final _formKey = GlobalKey<FormState>();
 
   final logger = Logger();
@@ -52,10 +53,8 @@ class _BookingsScreenState extends State<BookingsScreen> {
       _isLoading = true;
     });
     try {
-
-
       final userId = await SecureStorageService.getUserId();
-      if(userId == null){
+      if (userId == null) {
         logger.d("User id not found");
         return null;
       }
@@ -63,7 +62,7 @@ class _BookingsScreenState extends State<BookingsScreen> {
         type: _selectedType,
         startDate: _startDate,
         endDate: _endDate,
-        userId: userId
+        userId: userId,
       );
 
       final bookings = await BookingService().fetchWithFilters(
@@ -73,8 +72,7 @@ class _BookingsScreenState extends State<BookingsScreen> {
         filteredBookings = bookings!;
       });
 
-
-      logger.d('Load all bookings : $filteredBookings');
+      
     } catch (e) {
       ScaffoldMessenger.of(
         context,
@@ -84,8 +82,7 @@ class _BookingsScreenState extends State<BookingsScreen> {
         _isLoading = false;
       });
     }
-
-    }
+  }
 
   @override
   void initState() {
@@ -106,152 +103,142 @@ class _BookingsScreenState extends State<BookingsScreen> {
       ),
       body: Column(
         children: [
-          Expanded(
-            flex: 3,
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(16),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  children: [
-                    /// Dropdown restaurant
-                    Row(
-                      children: [
-                        Expanded(
-                          child: DropdownButtonFormField<String>(
-                            decoration: InputDecoration(
-                              filled: true,
-                              fillColor: Colors.white,
-                              contentPadding: EdgeInsets.symmetric(
-                                horizontal: 16,
-                                vertical: 12,
-                              ),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(10),
-                                borderSide: BorderSide(
-                                  color: Color(0xFFE0E0E0),
-                                ),
-                              ),
-                              enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(10),
-                                borderSide: BorderSide(
-                                  color: Color(0xFFE0E0E0),
-                                ),
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(10),
-                                borderSide: BorderSide(
-                                  color: Color(0xFF4CAF50),
-                                  width: 2,
-                                ),
-                              ),
-                              hintStyle: TextStyle(
-                                  color: Colors.grey.shade500),
-                              labelText: "Type de reservation",
+          SingleChildScrollView(
+            padding: const EdgeInsets.all(16),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                children: [
+                  /// Dropdown restaurant
+                  Row(
+                    children: [
+                      Expanded(
+                        child: DropdownButtonFormField<String>(
+                          decoration: InputDecoration(
+                            filled: true,
+                            fillColor: Colors.white,
+                            contentPadding: EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 12,
                             ),
-                            value: _selectedType,
-                            items: bookingType
-                                .map(
-                                  (type) =>
-                                  DropdownMenuItem<String>(
-                                    value: type,
-                                    child: Text(type),
-                                  ),
-                            )
-                                .toList(),
-                            onChanged: (value) {
-                              setState(() {
-                                _selectedType = value;
-                              });
-                            },
-                          ),
-                        ),
-                      ],
-                    ),
-
-
-                    const SizedBox(height: 12),
-
-                    /// Dropdown type de plat
-                    Row(
-                      children: [
-                        Expanded(
-                          child: GestureDetector(
-                            onTap: () => _pickDate(true),
-                            child: Container(
-                              padding: EdgeInsets.symmetric(
-                                horizontal: 16,
-                                vertical: 14,
-                              ),
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(10),
-                                border: Border.all(color: Color(0xFFE0E0E0)),
-                              ),
-                              child: Text(
-                                _startDate == null
-                                    ? "Debut"
-                                    : "${_startDate!.day}/${_startDate!.month}/${_startDate!.year}",
-                                style: TextStyle(
-                                  color: _startDate == null
-                                      ? Colors.grey.shade500
-                                      : Colors.black,
-                                ),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10),
+                              borderSide: BorderSide(color: Color(0xFFE0E0E0)),
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10),
+                              borderSide: BorderSide(color: Color(0xFFE0E0E0)),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10),
+                              borderSide: BorderSide(
+                                color: Color(0xFF4CAF50),
+                                width: 2,
                               ),
                             ),
+                            hintStyle: TextStyle(color: Colors.grey.shade500),
+                            labelText: "Type de reservation",
                           ),
-                        ),
-                        SizedBox(width: 25),
-                        Expanded(
-                          child: GestureDetector(
-                            onTap: () => _pickDate(false),
-                            child: Container(
-                              padding: EdgeInsets.symmetric(
-                                horizontal: 16,
-                                vertical: 14,
-                              ),
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(10),
-                                border: Border.all(color: Color(0xFFE0E0E0)),
-                              ),
-                              child: Text(
-                                _endDate == null
-                                    ? "Date de fin"
-                                    : "${_endDate!.day}/${_endDate!.month}/${_endDate!.year}",
-                                style: TextStyle(
-                                  color: _endDate == null
-                                      ? Colors.grey.shade500
-                                      : Colors.black,
+                          value: _selectedType,
+                          items: bookingType
+                              .map(
+                                (type) => DropdownMenuItem<String>(
+                                  value: type,
+                                  child: Text(type),
                                 ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 20),
-                    // Button
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton.icon(
-                        onPressed: _filterBooking,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF4CAF50),
-                          padding: const EdgeInsets.symmetric(vertical: 14),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                        ),
-                        icon: const Icon(Icons.search, color: Colors.white),
-                        label: const Text(
-                          "Rechercher",
-                          style: TextStyle(color: Colors.white, fontSize: 16),
+                              )
+                              .toList(),
+                          onChanged: (value) {
+                            setState(() {
+                              _selectedType = value;
+                            });
+                          },
                         ),
                       ),
+                    ],
+                  ),
+
+                  const SizedBox(height: 12),
+
+                  /// Dropdown type de plat
+                  Row(
+                    children: [
+                      Expanded(
+                        child: GestureDetector(
+                          onTap: () => _pickDate(true),
+                          child: Container(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 14,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(10),
+                              border: Border.all(color: Color(0xFFE0E0E0)),
+                            ),
+                            child: Text(
+                              _startDate == null
+                                  ? "Debut"
+                                  : "${_startDate!.day}/${_startDate!.month}/${_startDate!.year}",
+                              style: TextStyle(
+                                color: _startDate == null
+                                    ? Colors.grey.shade500
+                                    : Colors.black,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      SizedBox(width: 25),
+                      Expanded(
+                        child: GestureDetector(
+                          onTap: () => _pickDate(false),
+                          child: Container(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 14,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(10),
+                              border: Border.all(color: Color(0xFFE0E0E0)),
+                            ),
+                            child: Text(
+                              _endDate == null
+                                  ? "Date de fin"
+                                  : "${_endDate!.day}/${_endDate!.month}/${_endDate!.year}",
+                              style: TextStyle(
+                                color: _endDate == null
+                                    ? Colors.grey.shade500
+                                    : Colors.black,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 20),
+                  // Button
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton.icon(
+                      onPressed: _filterBooking,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF4CAF50),
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                      icon: const Icon(Icons.search, color: Colors.white),
+                      label: const Text(
+                        "Rechercher",
+                        style: TextStyle(color: Colors.white, fontSize: 16),
+                      ),
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
           ),
@@ -264,16 +251,15 @@ class _BookingsScreenState extends State<BookingsScreen> {
                 : filteredBookings.isEmpty
                 ? Text("No booking found ")
                 : ListView.builder(
-              itemCount: filteredBookings.length,
-              itemBuilder: (context, index) {
-                final item = filteredBookings[index];
-                return BookingCard(booking: item, onTap: () {});
-              },
-            ),
+                    itemCount: filteredBookings.length,
+                    itemBuilder: (context, index) {
+                      final item = filteredBookings[index];
+                      return BookingCard(booking: item, onTap: () {});
+                    },
+                  ),
           ),
         ],
       ),
     );
   }
 }
-
