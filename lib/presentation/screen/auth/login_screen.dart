@@ -3,8 +3,6 @@ import 'package:logger/logger.dart';
 import 'package:vegnbio/core/routes/app_routes.dart';
 import '../../../core/constants/colors.dart';
 import '../../../domain/services/auth_service.dart';
-import '../../../dto/e_role.dart';
-import '../../../dto/role.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -15,6 +13,9 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final authservice = AuthService();
   final logger = Logger();
+  String? _selectedUserType;
+  final List<String> _userTypes = ["Client", "Fournisseur"];
+
 
   final _formKey = GlobalKey<FormState>();
   final TextEditingController usernameController = TextEditingController();
@@ -31,8 +32,7 @@ class _LoginScreenState extends State<LoginScreen> {
       _isLoading = true;
     });
 
-    try{
-
+    try {
       final result = await authservice.login(
         username: usernameController.text.trim(),
         password: passwordController.text.trim(),
@@ -40,270 +40,202 @@ class _LoginScreenState extends State<LoginScreen> {
 
       if (result != null) {
         logger.d(" >> Result : $result");
-
-        final role = result.roles.isNotEmpty ? result.roles.first : null;
-        if (role == null) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text("User role not found")),
-          );
-          return;
-        }
-
-        logger.d(" >> Role after sign in : $role");
-
-        switch (role.role) {
-          case ERole.CUSTOMER:
-            Navigator.pushReplacementNamed(context, AppRoutes.demo1);
-            break;
-
-          case ERole.SUPPLIER:
-            Navigator.pushReplacementNamed(context, AppRoutes.demo2);
-            break;
-
-          default:
-            Navigator.pushReplacementNamed(context, AppRoutes.register);
-        }
-      }else {
+        Navigator.pushReplacementNamed(
+          context,
+          AppRoutes.dash,
+          arguments: result, // on passe l'utilisateur connecté
+        );
+      } else {
         ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text("Login failure : credentials wrong")),
+          const SnackBar(content: Text("Échec de connexion : identifiants incorrects")),
         );
       }
-    }catch(e){
+    } catch (e) {
       logger.e('Error when login : $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error when login : $e')),
-      );
-    }finally{
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Error when login : $e')));
+    } finally {
       setState(() {
-        _isLoading =  false;
+        _isLoading = false;
       });
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
-        maintainBottomViewPadding: true,
         child: SingleChildScrollView(
           child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 5, vertical: 40),
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 40),
             child: Form(
               key: _formKey,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
-                children: <Widget>[
-                  Container(
-                    height: 130,
-                    width: 130,
-                    child: Image(
-                      image: AssetImage("assets/images/logo.png"),
-                      fit: BoxFit.scaleDown,
-                    ),
-                  ),
-                  Text(
-                    "Welcome To ",
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
-                  ),
-                  SizedBox(height: 25),
-                  Container(
-                    margin: EdgeInsets.only(bottom: 20),
-                    child: TextFormField(
-                      decoration: InputDecoration(
-                        filled: true,
-                        fillColor: Colors.white,
-                        contentPadding: EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 12,
-                        ),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                          borderSide: BorderSide(color: Color(0xFFE0E0E0)),
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                          borderSide: BorderSide(color: Color(0xFFE0E0E0)),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                          borderSide: BorderSide(
-                            color: Constants.greenVegnBio,
-                            width: 2,
-                          ),
-                        ),
-                        hintStyle: TextStyle(color: Colors.grey.shade500),
-                        label: Text('Pseudo'),
-                        prefixIcon: Icon(
-                          Icons.person_outline,
-                          color: Constants.greenVegnBio,
-                        ),
-                      ),
-                      controller: usernameController,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Veuiller entrer un login';
-                        }
-                      },
-                    ),
-                  ),
-                  Container(
-                    margin: EdgeInsets.only(bottom: 10),
-                    child: TextFormField(
-                      decoration: InputDecoration(
-                        filled: true,
-                        fillColor: Colors.white,
-                        contentPadding: EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 12,
-                        ),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                          borderSide: BorderSide(color: Color(0xFFE0E0E0)),
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                          borderSide: BorderSide(color: Color(0xFFE0E0E0)),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                          borderSide: BorderSide(
-                            color: Constants.greenVegnBio,
-                            width: 2,
-                          ),
-                        ),
+                children: [
+                  // Logo SVG
+                  /*SvgPicture.asset(
+                    "assets/images/logo.svg",
+                    height: 120,
+                    width: 120,
+                  ),*/
+                  const SizedBox(height: 20),
 
-                        hintStyle: TextStyle(color: Colors.grey.shade500),
-                        label: Text('Mot de passe'),
-                        suffixIcon: IconButton(
-                          icon: Icon(
-                            _isObscure
-                                ? Icons.visibility
-                                : Icons.visibility_off,
-                          ),
-                          onPressed: () {
-                            setState(() {
-                              _isObscure = !_isObscure;
-                            });
-                          },
-                        ),
-                        prefixIcon: Icon(
-                          Icons.lock_outline,
+                  // Titre principal
+                  const Text(
+                    "Bienvenue sur Veg'N Bio",
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.green,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 40),
+                  /**/
+                  // Username
+                  TextFormField(
+                    controller: usernameController,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Veuillez entrer votre pseudo';
+                      }
+                      return null;
+                    },
+                    decoration: InputDecoration(
+                      filled: true,
+                      fillColor: Colors.white,
+                      label: const Text('Pseudo'),
+                      prefixIcon: const Icon(
+                        Icons.person_outline,
+                        color: Colors.green,
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 14,
+                      ),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: const BorderSide(color: Colors.grey),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(
                           color: Constants.greenVegnBio,
+                          width: 2,
                         ),
                       ),
-                      obscureText: _isObscure,
-                      controller: passwordController,
                     ),
                   ),
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 30),
-                    child: Align(
-                      alignment: Alignment.centerRight,
-                      child: InkWell(
-                        onTap: () {
-                          Navigator.pushNamed(context, AppRoutes.forgotPass);
+                  const SizedBox(height: 20),
+                  // Password
+                  TextFormField(
+                    controller: passwordController,
+                    obscureText: _isObscure,
+                    decoration: InputDecoration(
+                      filled: true,
+                      fillColor: Colors.white,
+                      label: const Text('Mot de passe'),
+                      prefixIcon: const Icon(
+                        Icons.lock_outline,
+                        color: Colors.green,
+                      ),
+                      suffixIcon: IconButton(
+                        icon: Icon(
+                          _isObscure ? Icons.visibility : Icons.visibility_off,
+                        ),
+                        onPressed: () {
+                          setState(() {
+                            _isObscure = !_isObscure;
+                          });
                         },
-                        child: Text(
-                          "Mot de passe oublié ?",
-                          style: TextStyle(
-                            color: Constants.greenVegnBio,
-                            fontSize: 14,
-                          ),
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 14,
+                      ),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: const BorderSide(color: Colors.grey),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(
+                          color: Constants.greenVegnBio,
+                          width: 2,
                         ),
                       ),
                     ),
                   ),
-                  SizedBox(height: 30),
+                  const SizedBox(height: 10),
+
+                  // Mot de passe oublié
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: TextButton(
+                      onPressed: () {
+                        Navigator.pushNamed(context, AppRoutes.forgotPass);
+                      },
+                      child: Text(
+                        "Mot de passe oublié ?",
+                        style: TextStyle(color: Constants.greenVegnBio),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 30),
+
+                  // Bouton login
                   _isLoading
-                      ? Center(child: CircularProgressIndicator())
-                      : Container(
+                      ? const CircularProgressIndicator()
+                      : SizedBox(
                           width: double.infinity,
-                          margin: const EdgeInsets.symmetric(horizontal: 16),
+                          height: 55,
                           child: ElevatedButton(
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Constants.greenVegnBio,
-                              foregroundColor: Colors.white,
-                              elevation: 4,
-                              shadowColor: Colors.greenAccent.withOpacity(0.4),
-                              padding: EdgeInsets.symmetric(
-                                horizontal: 24,
-                                vertical: 18,
-                              ),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(12),
                               ),
-                              textStyle: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w600,
-                                letterSpacing: 1.0,
+                              elevation: 5,
+                              textStyle: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
                               ),
                             ),
-                            onPressed: () async {
+                            onPressed: () {
                               if (_formKey.currentState!.validate()) {
-                                await _trySubmit();
+                                _trySubmit();
                               }
                             },
                             child: const Text("Se connecter"),
                           ),
                         ),
+                  const SizedBox(height: 20),
 
-                  /*_isLoading
-                    ? Center(child: CircularProgressIndicator())
-                    : Container(
-
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Constants.greenVegnBio,
-                      foregroundColor: Colors.white,
-                      elevation: 4,
-                      shadowColor: Colors.greenAccent.withOpacity(0.4),
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 24,
-                        vertical: 18,
+                  // Créer un compte
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Text(
+                        "Nouvel utilisateur ? ",
+                        style: TextStyle(color: Colors.grey),
                       ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      textStyle: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                        letterSpacing: 1.0,
-                      ),
-                    ),
-                    onPressed: () async {
-                      if (_formKey.currentState!.validate()) {
-                        await _trySubmit();
-                      }
-                    },
-                    child: const Text("Se connecter"),
-                  ),
-                ),*/
-                  Padding(
-                    padding: const EdgeInsets.all(20),
-                    child: Align(
-                      alignment: Alignment.center,
-                      child: InkWell(
+                      GestureDetector(
                         onTap: () {
                           Navigator.pushNamed(context, AppRoutes.register);
                         },
-                        child: RichText(
-                          text: TextSpan(
-                            text: "Nouvel utilisateur ? ",
-                            style: TextStyle(color: Colors.grey, fontSize: 14),
-                            children: [
-                              TextSpan(
-                                text: "Creer un compte",
-                                style: TextStyle(
-                                  color: Constants.greenVegnBio,
-                                  fontSize: 14,
-                                ),
-                              ),
-                            ],
+                        child: Text(
+                          "Créer un compte",
+                          style: TextStyle(
+                            color: Constants.greenVegnBio,
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
                       ),
-                    ),
+                    ],
                   ),
                 ],
               ),

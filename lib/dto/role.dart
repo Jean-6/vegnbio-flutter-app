@@ -1,33 +1,21 @@
-import 'e_role.dart';
-
 class Role {
-
   final String? id;
-  final ERole role;
+  final String role;
 
   Role({this.id, required this.role});
 
-  factory Role.fromJson(Map<String,dynamic> json){
+  factory Role.fromJson(Map<String, dynamic> json) {
     return Role(
-      id:json['_id'] ?? json['id'],
-      role: ERole.fromString(json['role']),
+      id: json['id']?.toString(),
+      role: json['role']?.toString().toUpperCase() ?? '',
     );
   }
 
-  Map<String, dynamic> toJson(){
-    return{
-      if(id != null) 'id':id,
-      'role': role.name,
-    };
-  }
+  Map<String, dynamic> toJson() => {
+    'id': id,
+    'role': role,
+  };
 
   @override
-  String toString() {
-    // TODO: implement toString
-    return '''
-    {
-    "id":"$id",
-    "role":"${role.name}"
-    }''';
-  }
+  String toString() => role;
 }

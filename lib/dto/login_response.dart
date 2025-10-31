@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'role.dart';
 
 class LoginResponse{
@@ -17,14 +19,36 @@ class LoginResponse{
   });
 
   factory LoginResponse.fromJson(Map<String,dynamic> json){
+
+    dynamic rolesRaw = json['roles'];
+    List<dynamic> rolesJson = [];
+
+    if (rolesRaw is List) {
+      rolesJson = rolesRaw;
+    }
+    else if (rolesRaw is String) {
+      try {
+        rolesJson = jsonDecode(rolesRaw);
+      } catch (e) {
+        rolesJson = [];
+      }
+    }
+
     return LoginResponse(
+      id: json['_id'] ?? json['id'] ?? '',
+      username: json['username'] ?? '',
+      email: json['email'] ?? '',
+      roles: rolesJson.map((r) => Role.fromJson(r)).toList(),
+      token: json['token'] ?? '',
+    );
+    /*return LoginResponse(
         id:json['_id'] ?? json['id'],
         username: json['username'],
         email: json['email'],
         roles: (json['roles'] as List<dynamic>)
             .map((r) => Role.fromJson(r))
             .toList(),
-        token: json['token']);
+        token: json['token']);*/
   }
 
 

@@ -11,7 +11,7 @@ import '../../dto/response_wrapper.dart';
 class AuthService {
 
   final logger = Logger();
-  final _baseUrl = Uri.parse("http://172.20.10.5:8081");
+  final _baseUrl = Uri.parse("http://172.20.10.5:8082");
   final authHelper = CredentialStorageHelper();
 
   Future<LoginResponse?> register({
@@ -38,6 +38,8 @@ class AuthService {
             'username':username,
             'email': email,
             'password': password,
+            'source':"mobile",
+            'userType':"customer"
           })
       );
       if(res.statusCode == 200){
@@ -48,15 +50,11 @@ class AuthService {
         );
 
         final loginResp = rw.data;
-        /*
-          if (!loginResp.hasValidToken) {
-          logger.e('Token invalide');
-          return null;
-          }
-         */
         await SecureStorageService.saveToken(loginResp.token);
-        if(loginResp.roles.isNotEmpty){
-          await SecureStorageService.saveRole(loginResp.roles.first);
+        await SecureStorageService.saveUserId(loginResp.id);
+        if (loginResp.roles.isNotEmpty) {
+          final rolesList = loginResp.roles.map((r) => r.role.toString()).toList();
+          await SecureStorageService.saveRoles(rolesList);
         }
 
         logger.d(" >> registration successful");
@@ -84,7 +82,7 @@ class AuthService {
         return null;
       }
 
-      final url = Uri.parse("$_baseUrl/api/auth/login");
+      final url = Uri.parse("$_baseUrl/api/auth/sign-in");
 
       final res = await http.post(url ,
           headers: {
@@ -111,17 +109,21 @@ class AuthService {
           }
          */
         await SecureStorageService.saveToken(loginResp.token);
+        await SecureStorageService.saveUserId(loginResp.id);
+        await SecureStorageService.saveUsername(loginResp.username);
+        await SecureStorageService.saveUserEmail(loginResp.email);
         if(loginResp.roles.isNotEmpty){
-          await SecureStorageService.saveRole(loginResp.roles.first);
+          final rolesList = loginResp.roles.map((r) => r.role.toString()).toList();
+          await SecureStorageService.saveRoles(rolesList);
         }
         logger.d(" >> login successful");
         return loginResp;
       }else{
-        logger.e(' >> Error when registration: ${res.statusCode}');
+        logger.e(' >> Error when login: ${res.statusCode}');
         return null;
       }
     }catch(e){
-      logger.e(' >> Exception catch when registration: $e');
+      logger.e(' >> Exception catch when login: $e');
       return null;
     }
   }

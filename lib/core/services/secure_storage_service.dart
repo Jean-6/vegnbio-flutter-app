@@ -3,8 +3,6 @@
 
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
-import '../../dto/role.dart';
-
 class SecureStorageService{
   static final _storage = FlutterSecureStorage();
 
@@ -16,12 +14,14 @@ class SecureStorageService{
     return await _storage.read(key: 'jwt');
   }
 
-  static Future<void> saveRole(Role role) async{
-    await _storage.write(key: 'role', value: role.role.toString());
+  static Future<void> saveRoles(List<String> roles) async {
+    await _storage.write(key: 'roles', value: roles.join(','));
   }
 
-  static Future<String?> getRole() async{
-    return await _storage.read(key: 'role');
+  static Future<List<String>?> getUserRoles() async {
+    final rolesStr = await _storage.read(key: 'roles');
+    if (rolesStr == null || rolesStr.isEmpty) return null;
+    return rolesStr.split(',');
   }
 
   static Future<void> saveUserId(String userId) async {
