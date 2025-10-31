@@ -19,24 +19,17 @@ class CanteenScreenState extends State<CanteenScreen> {
   final _formKey = GlobalKey<FormState>();
   final DateFormat dateFormat = DateFormat('dd/MM/yyyy');
   final logger = Logger();
-  String? _canteenName;
-  String? _dishName;
-  DateTime? _startDate;
-  DateTime? _endDate;
+  String? _canteen;
 
   // Field for searching rooms
-  int? capacity;
   bool hasConferenceRoom = false;
-  bool hasWifi = false;
-  bool? hasPrinter = false;
+  bool hasMeditation = false;
+  bool? hasAnimation = false;
 
   bool _isLoading = false;
 
   String? selectedRestaurantId;
   final _nameController = TextEditingController();
-  final _dishNameController = TextEditingController();
-  final _cityController = TextEditingController();
-  final _postalCodeController = TextEditingController();
   List<String> selectedTags = [];
   List<String> selectedEquipments = [];
   double minSeats = 0;
@@ -54,13 +47,13 @@ class CanteenScreenState extends State<CanteenScreen> {
     });
     try {
       final filters = CanteenFilter(
-        canteenName: _canteenName,
-        dishName: _dishName,
-        startDate: _startDate,
-        endDate: _endDate,
-        hasWifi: hasWifi,
-        hasPrinter: hasPrinter,
+        name: _canteen,
+        hasAnimation: hasAnimation,
+        hasConferenceRoom: hasConferenceRoom,
+        hasMeditation: hasMeditation,
       );
+
+      logger.d("Filters sent: ${filters.toQueryParams()}");
 
       final canteens = await CanteenService().fetchWithFilters(
         filters: filters,
@@ -129,202 +122,121 @@ class CanteenScreenState extends State<CanteenScreen> {
                               ),
                             ),
                           ),
-                          onChanged: (value) => _canteenName = value,
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: TextFormField(
-                          controller: _dishNameController,
-                          decoration: InputDecoration(
-                            labelText: "Nom du plat",
-                            hintText: "Entrez le nom du plat",
-                            filled: true,
-                            fillColor: Colors.white,
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
-                              borderSide: const BorderSide(
-                                color: Color(0xFF4CAF50),
-                                width: 2,
-                              ),
-                            ),
-                          ),
-                          onChanged: (value) => _dishName = value,
+                          onChanged: (value) => _canteen = value,
                         ),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 20),
 
-                  // Checkbox Wi-Fi / Imprimante
-                  /*CheckboxListTile(
-                    title: const Text("Inclure la recherche de salles de réunion"),
-                    value: searchMeetingRooms,
-                    onChanged: (value) {
-                      setState(() => searchMeetingRooms = value ?? false);
-                    },
-                    activeColor: const Color(0xFF4CAF50),
-                  ),*/
-                  Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(10),
-                      border: Border.all(color: const Color(0xFFE0E0E0)),
-                    ),
-                    child: CheckboxListTile(
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                      ),
-                      dense: true,
-                      title: const Text(
-                        "Inclure la recherche de salles de réunion",
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                      value: searchMeetingRooms,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      activeColor: const Color(0xFF4CAF50),
-                      onChanged: (value) {
-                        setState(() {
-                          searchMeetingRooms = value ?? false;
-                        });
-                      },
-                    ),
-                  ),
-
-                  /*if (searchMeetingRooms) ...[
-                    CheckboxListTile(
-                      title: const Text("Wi-Fi"),
-                      value: hasWifi,
-                      onChanged: (value) => setState(() => hasWifi = value ?? false),
-                    ),
-                    CheckboxListTile(
-                      title: const Text("Imprimante"),
-                      value: hasPrinter,
-                      onChanged: (value) => setState(() => hasPrinter = value ?? false),
-                    ),
-                  ],*/
-
-                  // Sous-formulaire activé uniquement si searchMeetingRooms = true
-                  if (searchMeetingRooms) ...[
-                    const SizedBox(height: 12),
-                    Row(
-                      children: [
-                        // Capacité
-                        SizedBox(
-                          width: 120,
-                          child: TextFormField(
-                            keyboardType: TextInputType.number,
-                            decoration: InputDecoration(
-                              labelText: "Capacité",
-                              filled: true,
-                              fillColor: Colors.white,
-                              contentPadding: const EdgeInsets.symmetric(
-                                horizontal: 16,
-                                vertical: 12,
-                              ),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(10),
-                                borderSide: const BorderSide(
-                                  color: Color(0xFFE0E0E0),
+                  const SizedBox(height: 12),
+                  Row(
+                    children: [
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(10),
+                                  border: Border.all(
+                                    color: const Color(0xFFE0E0E0),
+                                  ),
                                 ),
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(10),
-                                borderSide: const BorderSide(
-                                  color: Color(0xFF4CAF50),
-                                  width: 2,
+                                child: CheckboxListTile(
+                                  contentPadding: const EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                  ),
+                                  dense: true,
+                                  title: const Text(
+                                    "Reunion",
+                                    style: TextStyle(fontSize: 14),
+                                  ),
+                                  value: hasConferenceRoom,
+                                  activeColor: const Color(0xFF4CAF50),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  onChanged: (value) {
+                                    setState(() {
+                                      hasConferenceRoom = value ?? false;
+                                    });
+                                  },
                                 ),
                               ),
                             ),
-                            onChanged: (value) {
-                              capacity = int.tryParse(value);
-                            },
-                          ),
-                        ),
-                        const SizedBox(width: 10),
-
-                        // Wi-Fi et Imprimante
-                        Expanded(
-                          child: Row(
-                            children: [
-                              Expanded(
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    color: Colors.white,
-                                    borderRadius: BorderRadius.circular(10),
-                                    border: Border.all(
-                                      color: const Color(0xFFE0E0E0),
-                                    ),
-                                  ),
-                                  child: CheckboxListTile(
-                                    contentPadding: const EdgeInsets.symmetric(
-                                      horizontal: 12,
-                                    ),
-                                    dense: true,
-                                    title: const Text(
-                                      "Wi-Fi",
-                                      style: TextStyle(fontSize: 14),
-                                    ),
-                                    value: hasWifi,
-                                    activeColor: const Color(0xFF4CAF50),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(10),
-                                    ),
-                                    onChanged: (value) {
-                                      setState(() {
-                                        hasWifi = value ?? false;
-                                      });
-                                    },
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(10),
+                                  border: Border.all(
+                                    color: const Color(0xFFE0E0E0),
                                   ),
                                 ),
-                              ),
-                              const SizedBox(width: 8),
-                              Expanded(
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    color: Colors.white,
+                                child: CheckboxListTile(
+                                  contentPadding: const EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                  ),
+                                  dense: true,
+                                  title: const Text(
+                                    "Animation",
+                                    style: TextStyle(fontSize: 14),
+                                  ),
+                                  value: hasAnimation,
+                                  activeColor: const Color(0xFF4CAF50),
+                                  shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(10),
-                                    border: Border.all(
-                                      color: const Color(0xFFE0E0E0),
-                                    ),
                                   ),
-                                  child: CheckboxListTile(
-                                    contentPadding: const EdgeInsets.symmetric(
-                                      horizontal: 12,
-                                    ),
-                                    dense: true,
-                                    title: const Text(
-                                      "Imprimante",
-                                      style: TextStyle(fontSize: 14),
-                                    ),
-                                    value: hasPrinter,
-                                    activeColor: const Color(0xFF4CAF50),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(10),
-                                    ),
-                                    onChanged: (value) {
-                                      setState(() {
-                                        hasPrinter = value ?? false;
-                                      });
-                                    },
-                                  ),
+                                  onChanged: (value) {
+                                    setState(() {
+                                      hasAnimation = value ?? false;
+                                    });
+                                  },
                                 ),
                               ),
-                            ],
-                          ),
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(10),
+                                  border: Border.all(
+                                    color: const Color(0xFFE0E0E0),
+                                  ),
+                                ),
+                                child: CheckboxListTile(
+                                  contentPadding: const EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                  ),
+                                  dense: true,
+                                  title: const Text(
+                                    "Méditation",
+                                    style: TextStyle(fontSize: 14),
+                                  ),
+                                  value: hasMeditation,
+                                  activeColor: const Color(0xFF4CAF50),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  onChanged: (value) {
+                                    setState(() {
+                                      hasMeditation = value ?? false;
+                                    });
+                                  },
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
-                  ],
+                      ),
+                    ],
+                  ),
 
+                  //],
                   const SizedBox(height: 20),
 
                   // Bouton Rechercher

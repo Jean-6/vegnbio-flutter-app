@@ -5,6 +5,7 @@ import 'package:vegnbio/presentation/widget/table_booking_form.dart';
 
 import '../../../core/constants/values.dart';
 import '../../../dto/canteen.dart';
+import '../../../dto/opening_hour.dart';
 
 class CanteenDetailScreen extends StatefulWidget {
   final Canteen canteen;
@@ -25,6 +26,17 @@ class _CanteenDetailScreenState extends State<CanteenDetailScreen>
   final _localisationKey = GlobalKey();
   final _avisKey = GlobalKey();
 
+  Map<String, String> dayTranslations = {
+    'MONDAY': 'Lundi',
+    'TUESDAY': 'Mardi',
+    'WEDNESDAY': 'Mercredi',
+    'THURSDAY': 'Jeudi',
+    'FRIDAY': 'Vendredi',
+    'SATURDAY': 'Samedi',
+    'SUNDAY': 'Dimanche',
+  };
+
+
   late TabController _tabController;
 
   @override
@@ -44,6 +56,8 @@ class _CanteenDetailScreenState extends State<CanteenDetailScreen>
       );
     }
   }
+
+
 
   Widget _sectionTitle(String title, IconData icon) {
     return Padding(
@@ -85,57 +99,30 @@ class _CanteenDetailScreenState extends State<CanteenDetailScreen>
   }
 
 
-  List<Map<String, dynamic>> _groupOpeningHours(Map<String, dynamic> openingHourMap) {
-    final orderedEntries = daysOrder
-        .where((day) => openingHourMap.containsKey(day))
-        .map((day) => MapEntry(day, openingHourMap[day]))
-        .toList();
-
-    List<Map<String, dynamic>> grouped = [];
-    String? currentStartDay;
-    String? currentEndDay;
-    var currentHours;
-
-    for (var entry in orderedEntries) {
-      final translatedDay = dayTranslations[entry.key] ?? entry.key;
-      final hours = entry.value;
-
-      if (currentHours == null) {
-        currentStartDay = translatedDay;
-        currentEndDay = translatedDay;
-        currentHours = hours;
-      } else if (hours.openingTime == currentHours.openingTime &&
-          hours.closeTime == currentHours.closeTime) {
-        currentEndDay = translatedDay;
-      } else {
-        grouped.add({
-          "days": currentStartDay == currentEndDay
-              ? currentStartDay
-              : "$currentStartDay - $currentEndDay",
-          "hours": "${currentHours.openingTime} - ${currentHours.closeTime}",
-        });
-
-        currentStartDay = translatedDay;
-        currentEndDay = translatedDay;
-        currentHours = hours;
-      }
-    }
-
-    if (currentHours != null) {
-      grouped.add({
-        "days": currentStartDay == currentEndDay
-            ? currentStartDay
-            : "$currentStartDay - $currentEndDay",
-        "hours": "${currentHours.openingTime} - ${currentHours.closeTime}",
-      });
-    }
-
-    return grouped;
-  }
-
   @override
   Widget build(BuildContext context) {
     final canteen = widget.canteen;
+
+    List<Map<String, String>> formatOpeningHours(Map<String, OpeningHours> openingHoursMap) {
+      List<Map<String, String>> list = [];
+
+      openingHoursMap.forEach((dayKey, hours) {
+        final dayName = dayTranslations[dayKey] ?? dayKey; // traduction en français
+        final hoursString =
+            '${hours.open.hour.toString().padLeft(2, '0')}:${hours.open.minute.toString().padLeft(2, '0')} - '
+            '${hours.close.hour.toString().padLeft(2, '0')}:${hours.close.minute.toString().padLeft(2, '0')}';
+
+        list.add({
+          'day': dayName,
+          'hours': hoursString,
+        });
+      });
+
+      return list;
+    }
+
+
+
 
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FA),
@@ -379,17 +366,20 @@ class _CanteenDetailScreenState extends State<CanteenDetailScreen>
                   _sectionTitle("Horaires", Icons.access_time),
                   Padding(
                     padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      children: _groupOpeningHours(canteen.openingHourMap).map((entry) {
+                    child: Column( // ← ici il fallait "child:"
+                      children: formatOpeningHours(canteen.openingHoursMap)
+                          .map((entry) {
                         return Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 4),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(entry["days"], style: const TextStyle(fontWeight: FontWeight.w600)),
-                                Text(entry["hours"], style: const TextStyle(color: Colors.black54)),
-                              ],
-                        ),
+                          padding: const EdgeInsets.symmetric(vertical: 4),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(entry["day"]!,
+                                  style: const TextStyle(fontWeight: FontWeight.w600)),
+                              Text(entry["hours"]!,
+                                  style: const TextStyle(color: Colors.black54)),
+                            ],
+                          ),
                         );
                       }).toList(),
                     ),

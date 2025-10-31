@@ -23,9 +23,11 @@ class CanteenService {
       return null;
     }
 
-    final url = Uri.parse("$_baseUrl/api/canteen/");
 
-    final res = await http.get(url);
+    final uri = Uri.parse("$_baseUrl/api/canteen/all/approved")
+        .replace(queryParameters: filters.toQueryParams());
+
+    final res = await http.get(uri);
     logger.d('>> Raw response: ${res.body}');
     if(res.statusCode == 200){
       final Map<String, dynamic> jsonMap = json.decode(res.body);
@@ -51,7 +53,7 @@ class CanteenService {
       return null;
     }
 
-    final url = Uri.parse("$_baseUrl/api/canteen/");
+    final url = Uri.parse("$_baseUrl/api/canteen/all/approved");
 
     final res = await http.get(url);
     logger.d('>> Raw response: ${res.body}');

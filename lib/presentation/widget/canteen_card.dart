@@ -82,52 +82,57 @@ class CanteenCard extends StatelessWidget {
                   SizedBox(height: 8),
                   Row(
                     children: [
-                      Icon(Icons.chair, size: 18, color: Colors.green),
-                      SizedBox(width: 4),
-                      Text("${canteen.seats} places"),
-                      SizedBox(width: 12),
-                      Icon(Icons.wifi, size: 18, color: Colors.blue),
-                      SizedBox(width: 4),
-                      Text("Wi-Fi"),
-                      SizedBox(width: 12),
-                      Icon(Icons.deck, size: 18, color: Colors.orange),
-                      //SizedBox(width: 4),
-                      //Text("Terrasse"),
+                      ...canteen.equipments.map((e) {
+                        final equip = e.toLowerCase();
+                        switch (equip) {
+                          case "Animation":
+                            return Row(
+                              children: [
+                                Icon(Icons.theater_comedy, size: 18, color: Colors.purple),
+                                SizedBox(width: 4),
+                                Text("Animation"),
+                                SizedBox(width: 12),
+                              ],
+                            );
+                          case "espace de méditation":
+                            return Row(
+                              children: [
+                                Icon(Icons.self_improvement, size: 18, color: Colors.green),
+                                SizedBox(width: 4),
+                                Text("Méditation"),
+                                SizedBox(width: 12),
+                              ],
+                            );
+                          case "MeetingRoom":
+                            return Row(
+                              children: [
+                                Icon(Icons.meeting_room, size: 18, color: Colors.blue),
+                                SizedBox(width: 4),
+                                Text("Salle de réunion"),
+                                SizedBox(width: 12),
+                              ],
+                            );
+                          default:
+                            return SizedBox.shrink();
+                        }
+                      }).toList(),
                     ],
                   ),
-
-                  SizedBox(height: 8),
-                  Text(
-                    "Aujourd'hui : 10:00 - 23:00",
-                    style: TextStyle(fontWeight: FontWeight.w500),
-                  ),
-
-                  /*SizedBox(height: 8),
-                  Text("📍 3 Promenade des Anglais, Nice"),*/
-
-                  /*Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
+                  Row(
                     children: [
-                      TextButton.icon(
-                        onPressed: () {
-                          // Action pour la réservation
-                          print("Réserver cliqué !");
-                        },
-                        icon: Icon(Icons.calendar_today),
-                        label: Text("Réserver"),
-                      ),
-                      TextButton.icon(
-                        onPressed: () {},
-                        icon: Icon(Icons.phone),
-                        label: Text("Appeler"),
-                      ),
-                      TextButton.icon(
-                        onPressed: () {},
-                        icon: Icon(Icons.map),
-                        label: Text("Carte"),
+                      const Icon(Icons.location_on, size: 18, color: Colors.red),
+                      const SizedBox(width: 4),
+                      Expanded(
+                        child: Text(
+                          "${canteen.location.address}, ${canteen.location.city}",
+                          style: const TextStyle(fontSize: 14, color: Colors.black87),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ),
                     ],
-                  ),*/
+                  ),
+
                 ],
               ),
             ),

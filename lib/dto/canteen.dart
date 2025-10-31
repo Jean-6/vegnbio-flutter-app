@@ -10,7 +10,7 @@ class Canteen {
   final List<String> equipments;
   final int seats;
   final int meetingRooms;
-  final Map<String, OpeningHour> openingHourMap;
+  final Map<String, OpeningHours> openingHoursMap ;
   final Location location;
   final Contact contact;
   final List<String> tags; // ex: ["vegan", "bio", "local"]
@@ -24,7 +24,7 @@ class Canteen {
     required this.equipments,
     required this.seats,
     required this.meetingRooms,
-    required this.openingHourMap,
+    required this.openingHoursMap ,
     required this.location,
     required this.contact,
     required this.tags,
@@ -41,11 +41,11 @@ class Canteen {
       equipments: List<String>.from(json['equipments'] ?? []),
       seats: json['seats'] ?? 0,
       meetingRooms: json['meetingRooms'] ?? 0,
-      openingHourMap: (json['openingHoursMap'] as Map<String, dynamic>? ?? {})
+      openingHoursMap : (json['openingHoursMap'] as Map<String, dynamic>? ?? {})
           .map(
             (key, value) => MapEntry(
               key.toString() ,
-              OpeningHour.fromJson(value as Map<String, dynamic>),
+              OpeningHours .fromJson(value as Map<String, dynamic>),
         ),
       ),
       location: Location.fromJson(json['location'] ?? {}),
@@ -66,7 +66,7 @@ class Canteen {
       "equipments": "$equipments",
       "seats": "$seats",
       "meetingRooms": "$meetingRooms",
-      "openingHourMap": "$openingHourMap",
+      "openingHourMap": "openingHoursMap",
       "location": "$location",
       "contact": "$contact",
       "tags": "$tags",

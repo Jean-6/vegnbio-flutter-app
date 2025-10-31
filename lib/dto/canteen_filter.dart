@@ -2,35 +2,23 @@
 
 
 class CanteenFilter {
-  final String? canteenName;
-  final String? dishName;
-  final DateTime? startDate;
-  final DateTime? endDate;
-  final int? capacity;
-  final bool? hasWifi;
-  final bool? hasPrinter;
+  final String? name;
   final bool? hasConferenceRoom;
+  final bool? hasMeditation;
+  final bool? hasAnimation;
 
   CanteenFilter({
-    this.canteenName,
-    this.dishName,
-    this.startDate,
-    this.endDate,
-    this.capacity,
-    this.hasWifi,
-    this.hasPrinter,
+    this.name,
     this.hasConferenceRoom,
+    this.hasMeditation,
+    this.hasAnimation,
   });
 
   Map<String, String> toQueryParams() {
     final Map<String, String> params = {};
-    if (canteenName != null) params['canteenName'] = canteenName!;
-    if (dishName != null) params['dishName'] = dishName!;
-    if (startDate != null) params['startDate'] = startDate!.toIso8601String();
-    if (endDate != null) params['endDate'] = endDate!.toIso8601String();
-    if (capacity != null) params['capacity'] = capacity.toString();
-    if (hasWifi != null) params['hasWifi'] = hasWifi.toString();
-    if (hasPrinter != null) params['hasPrinter'] = hasPrinter.toString();
+    if (name != null) params['name'] = name!;
+    if (hasMeditation!= null) params['hasMeditation'] = hasMeditation.toString();
+    if (hasAnimation!= null) params['hasAnimation'] = hasAnimation.toString();
     if (hasConferenceRoom != null) params['hasConferenceRoom'] = hasConferenceRoom.toString();
     return params;
   }
