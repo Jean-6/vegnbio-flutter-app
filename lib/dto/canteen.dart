@@ -76,4 +76,39 @@ class Canteen {
   }
 }
 
+/**/
 
+class CanteenInfo {
+  final String canteenId;
+  final String name;
+  final Location? location;
+  final Contact? contact;
+
+  CanteenInfo({
+    required this.canteenId,
+    required this.name,
+    this.location,
+    this.contact,
+  });
+
+  factory CanteenInfo.fromJson(Map<String, dynamic>? json) {
+    if (json == null) return CanteenInfo(canteenId: '', name: '');
+    return CanteenInfo(
+      canteenId: json['canteenId']?.toString() ?? '',
+      name: json['name']?.toString() ?? '',
+      location: json['location'] != null ? Location.fromJson(json['location']) : null,
+      contact: json['contact'] != null ? Contact.fromJson(json['contact']) : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'canteenId': canteenId,
+      'name': name,
+      'location': location?.toJson(),
+      'contact': contact?.toJson(),
+    };
+  }
+}
+
+// booking.dart

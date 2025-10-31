@@ -4,6 +4,8 @@ import 'package:vegnbio/presentation/widget/room_booking_form.dart';
 import 'package:vegnbio/presentation/widget/table_booking_form.dart';
 
 import '../../../core/constants/values.dart';
+import '../../../domain/services/booking_service.dart';
+import '../../../dto/booking.dart';
 import '../../../dto/canteen.dart';
 import '../../../dto/opening_hour.dart';
 
@@ -37,6 +39,29 @@ class _CanteenDetailScreenState extends State<CanteenDetailScreen>
   };
 
 
+  List<RoomBooking> existingRoomBookings = [];
+
+  bool isRoomSlotAvailable({
+    required DateTime newStart,
+    required DateTime newEnd,
+    required List<RoomBooking> existingBookings,
+  }) {
+    for (var booking in existingBookings) {
+      final existingStart = DateTime.parse("${booking.date}T${booking.startTime}:00");
+      final existingEnd = DateTime.parse("${booking.date}T${booking.endTime}:00");
+
+      if (newStart.isBefore(existingEnd) && newEnd.isAfter(existingStart)) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  Future<void> _loadRoomBookings() async {
+    existingRoomBookings = await BookingService().fetchRoomBookings(widget.canteen.id);
+    setState(() {});
+  }
+
   late TabController _tabController;
 
   @override
@@ -44,6 +69,7 @@ class _CanteenDetailScreenState extends State<CanteenDetailScreen>
     // TODO: implement initState
     super.initState();
     _tabController = TabController(length: 4, vsync: this);
+    _loadRoomBookings();
   }
 
   void _scrollTo(GlobalKey key) {
@@ -316,10 +342,12 @@ class _CanteenDetailScreenState extends State<CanteenDetailScreen>
                                         maxHeight: 405,
                                       ),
                                       child: RoomBookingForm(
-                                        onReserved: () {
+                                        canteenId: widget.canteen.id,
+                                        existingBookings: existingRoomBookings, // ← passe la liste, pas la Future
+                                        onReserved: () async {
                                           Navigator.pop(context, true);
+                                          await _loadRoomBookings(); // recharge les réservations après ajout
                                         },
-                                        canteenId: canteen.id,
                                       ),
                                     ),
                                   );
