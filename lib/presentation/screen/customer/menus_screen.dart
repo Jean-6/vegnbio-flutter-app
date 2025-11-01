@@ -23,13 +23,14 @@ class MenusScreenState extends State<MenusScreen> {
 
   late Future<List<Event>> futureEvents;
 
-  final TextEditingController _dishNameCtrl = TextEditingController();
+  final TextEditingController _itemNameCtrl = TextEditingController();
   String? _selectedCanteen;
-  String? _selectedDishType;
-  String? _selectedDiet;
+  String? _selectedItemType;
   DateTime? startDate;
   DateTime? endDate;
   bool _isLoading = false;
+  String? _canteen;
+  final _nameController = TextEditingController();
 
   List<MenuItem> filteredMenus = [];
   List<Canteen> canteens = [];
@@ -43,10 +44,9 @@ class MenusScreenState extends State<MenusScreen> {
 
     try {
       final filters = ItemMenuFilter(
-        canteenId: _selectedCanteen,
-        itemName: _dishNameCtrl.text,
-     //   dishType: _selectedDishType,
-      //  diet: _selectedDiet,
+        canteenName: _canteen,
+        itemName: _itemNameCtrl.text,
+        itemType: _selectedItemType,
       );
       final menus = await MenuService().fetchWithFilters(menuFilters: filters);
 
@@ -145,50 +145,25 @@ class MenusScreenState extends State<MenusScreen> {
                     Row(
                       children: [
                         Expanded(
-                          child: DropdownButtonFormField<String>(
+                          child: TextFormField(
+                            controller: _nameController,
                             decoration: InputDecoration(
+                              labelText: "Nom du restaurant",
+                              hintText: "Entrez le nom du restaurant",
                               filled: true,
                               fillColor: Colors.white,
-                              contentPadding: EdgeInsets.symmetric(
-                                horizontal: 16,
-                                vertical: 12,
-                              ),
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(10),
-                                borderSide: BorderSide(
-                                  color: Color(0xFFE0E0E0),
-                                ),
-                              ),
-                              enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(10),
-                                borderSide: BorderSide(
-                                  color: Color(0xFFE0E0E0),
-                                ),
                               ),
                               focusedBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(10),
-                                borderSide: BorderSide(
+                                borderSide: const BorderSide(
                                   color: Color(0xFF4CAF50),
                                   width: 2,
                                 ),
                               ),
-                              hintStyle: TextStyle(color: Colors.grey.shade500),
-                              labelText: "Selectionner le restaurant",
                             ),
-                            value: _selectedCanteen,
-                            items: canteenOptions
-                                .map(
-                                  (c) => DropdownMenuItem<String>(
-                                    value: c.id,
-                                    child: Text(c.name),
-                                  ),
-                                )
-                                .toList(),
-                            onChanged: (value) {
-                              setState(() {
-                                _selectedCanteen = value;
-                              });
-                            },
+                            onChanged: (value) => _canteen = value,
                           ),
                         ),
                       ],
@@ -198,7 +173,7 @@ class MenusScreenState extends State<MenusScreen> {
 
                     /// Text field nom du plat
                     TextFormField(
-                      controller: _dishNameCtrl,
+                      controller: _itemNameCtrl,
                       decoration: InputDecoration(
                         filled: true,
                         fillColor: Colors.white,
@@ -262,7 +237,7 @@ class MenusScreenState extends State<MenusScreen> {
                               hintStyle: TextStyle(color: Colors.grey.shade500),
                               labelText: "Type de plat",
                             ),
-                            value: _selectedDishType,
+                            value: _selectedItemType,
                             items: dishType
                                 .map(
                                   (type) => DropdownMenuItem<String>(
@@ -273,59 +248,13 @@ class MenusScreenState extends State<MenusScreen> {
                                 .toList(),
                             onChanged: (value) {
                               setState(() {
-                                _selectedDishType = value;
+                                _selectedItemType = value;
                               });
                             },
                           ),
                         ),
 
                         const SizedBox(width: 12),
-                        Expanded(
-                          child: DropdownButtonFormField<String>(
-                            decoration: InputDecoration(
-                              filled: true,
-                              fillColor: Colors.white,
-                              contentPadding: EdgeInsets.symmetric(
-                                horizontal: 16,
-                                vertical: 12,
-                              ),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(10),
-                                borderSide: BorderSide(
-                                  color: Color(0xFFE0E0E0),
-                                ),
-                              ),
-                              enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(10),
-                                borderSide: BorderSide(
-                                  color: Color(0xFFE0E0E0),
-                                ),
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(10),
-                                borderSide: BorderSide(
-                                  color: Color(0xFF4CAF50),
-                                  width: 2,
-                                ),
-                              ),
-                              hintStyle: TextStyle(color: Colors.grey.shade500),
-                              labelText: "Regime alimentaire",
-                            ),
-                            items: ["Végétarien", "Vegan", "Sans gluten"]
-                                .map(
-                                  (diet) => DropdownMenuItem(
-                                    value: diet,
-                                    child: Text(diet),
-                                  ),
-                                )
-                                .toList(),
-                            onChanged: (value) {
-                              setState(() {
-                                _selectedDiet = value;
-                              });
-                            },
-                          ),
-                        ),
                       ],
                     ),
                     const SizedBox(height: 20),
