@@ -8,8 +8,6 @@ import 'package:logger/logger.dart';
 
 import '../../core/services/credential_storage_helper.dart';
 import '../../dto/menu.dart';
-import '../../dto/menu_filter.dart';
-import '../../dto/response_wrapper.dart';
 
 class MenuService {
   final logger = Logger();
@@ -17,7 +15,7 @@ class MenuService {
   final authHelper = CredentialStorageHelper();
 
 
-  Future<List<Menu>?> fetchWithFilters({required MenuFilter menuFilters}) async {
+  Future<List<MenuItem>?> fetchWithFilters({required ItemMenuFilter menuFilters}) async {
     final basicAuth = await authHelper.readBasicAuthHeader();
     if (basicAuth == null) {
       logger.e('>> Error when retrieving basic auth credentials');
@@ -31,12 +29,14 @@ class MenuService {
     logger.d('>> Raw response: ${res.body}');
     if (res.statusCode == 200) {
       final Map<String, dynamic> jsonMap = json.decode(res.body);
-      final rw = ResponseWrapper.fromJson(
+      final List<dynamic> jsonList = jsonMap['data']; 
+      return jsonList.map((json) => MenuItem.fromJson(json)).toList();
+      /*final rw = ResponseWrapper.fromJson(
         jsonMap,
             (data) => (data as List).map((e) => Menu.fromJson(e)).toList(),
       );
       logger.d('>> Parsed menu (full field): ${rw.data}');
-      return rw.data ?? [];
+      return rw.data ?? [];*/
     } else {
       logger.e('>> Error when fetching menus: ${res.statusCode}');
       throw Exception('Error when fetching menus');
@@ -44,7 +44,7 @@ class MenuService {
   }
 
 
-  Future<List<Menu>?> fetchMenus({
+  Future<List<MenuItem>?> fetchMenus({
     String? restaurantId,
     String? name,
     /*String? dishType,*/
@@ -74,7 +74,7 @@ class MenuService {
       logger.d('>> Server response : ${res.body}');
       final Map<String, dynamic> jsonMap = json.decode(res.body);
       final List<dynamic> jsonList = jsonMap['data'];
-      return jsonList.map((json) => Menu.fromJson(json)).toList();
+      return jsonList.map((json) => MenuItem.fromJson(json)).toList();
     } else {
       logger.e(' >> Error when fetching menus: ${res.statusCode}');
       throw Exception("Error when loading menu");

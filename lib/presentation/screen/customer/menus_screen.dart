@@ -4,12 +4,10 @@ import 'package:vegnbio/domain/services/menu_service.dart';
 import 'package:vegnbio/presentation/screen/customer/menu_details_screen.dart';
 
 import '../../../core/constants/values.dart';
-import '../../../domain/services/canteen_service.dart';
 import '../../../dto/canteen.dart';
 import '../../../dto/canteen_option.dart';
 import '../../../dto/event.dart';
 import '../../../dto/menu.dart';
-import '../../../dto/menu_filter.dart';
 import '../../widget/menu_card.dart';
 
 class MenusScreen extends StatefulWidget {
@@ -33,10 +31,10 @@ class MenusScreenState extends State<MenusScreen> {
   DateTime? endDate;
   bool _isLoading = false;
 
-  List<Menu> filteredMenus = [];
+  List<MenuItem> filteredMenus = [];
   List<Canteen> canteens = [];
   List<CanteenOption> canteenOptions = [];
-  List<Menu> menus = [];
+  List<MenuItem> menus = [];
 
   Future<void> _filterMenus() async {
     setState(() {
@@ -44,11 +42,11 @@ class MenusScreenState extends State<MenusScreen> {
     });
 
     try {
-      final filters = MenuFilter(
+      final filters = ItemMenuFilter(
         canteenId: _selectedCanteen,
-        dishName: _dishNameCtrl.text,
-        dishType: _selectedDishType,
-        diet: _selectedDiet,
+        itemName: _dishNameCtrl.text,
+     //   dishType: _selectedDishType,
+      //  diet: _selectedDiet,
       );
       final menus = await MenuService().fetchWithFilters(menuFilters: filters);
 
@@ -97,12 +95,12 @@ class MenusScreenState extends State<MenusScreen> {
       _isLoading = true;
     });
     try {
-      final result = await CanteenService().fetchCanteenOption();
+      /*final result = await CanteenService().fetchCanteenOption();
       if (result != null) {
         setState(() {
           canteenOptions = result;
         });
-      }
+      }*/
     } catch (e, stack) {
       logger.e('>> Exception in _loadCanteens : ${e} ${stack}');
       ScaffoldMessenger.of(
@@ -360,26 +358,26 @@ class MenusScreenState extends State<MenusScreen> {
           Expanded(
             flex: 7,
             child: _isLoading
-                ? Center(child: CircularProgressIndicator())
+                ? const Center(child: CircularProgressIndicator())
                 : filteredMenus.isEmpty
-                ? Text("Aucun menu trouvé")
+                ? const Center(child: Text("Aucun menu trouvé"))
                 : ListView.builder(
-                    itemCount: filteredMenus.length,
-                    itemBuilder: (context, index) {
-                      final item = filteredMenus[index];
-                      return MenuCard(
-                        menu: item,
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => MenuDetailScreen(menu: item),
-                            ),
-                          );
-                        },
-                      );
-                    },
-                  ),
+              itemCount: filteredMenus.length,
+              itemBuilder: (context, index) {
+                final item = filteredMenus[index];
+                return MenuCard(
+                  menu: item,
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) =>  MenuDetailScreen(menu: item),
+                      ),
+                    );
+                  },
+                );
+              },
+            ),
           ),
         ],
       ),
