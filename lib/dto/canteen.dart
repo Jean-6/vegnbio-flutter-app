@@ -13,7 +13,7 @@ class Canteen {
   final Map<String, OpeningHours> openingHoursMap ;
   final Location location;
   final Contact contact;
-  final List<String> tags; // ex: ["vegan", "bio", "local"]
+  final List<String> tags;
   final List<String> menuIds;
   final List<String> pictures;
 
@@ -109,6 +109,13 @@ class CanteenInfo {
       'contact': contact?.toJson(),
     };
   }
+
+  factory CanteenInfo.empty() => CanteenInfo(
+    canteenId: '',
+    name: '',
+    location: Location.empty(),
+    contact: Contact.empty(),
+  );
 }
 
 // booking.dart

@@ -28,7 +28,7 @@ class EventService {
     }
 
     final url = Uri.parse(
-      "$_baseUrl/api/event/",
+      "$_baseUrl/api/event/all/approved",
     ).replace(queryParameters: queryParameters);
 
     final res = await http.get(url);

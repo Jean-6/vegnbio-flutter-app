@@ -215,13 +215,31 @@ class _EventDetailScreenState extends State<EventDetailScreen>
                   _sectionTitle("Localisation", Icons.location_on),
                   Padding(
                     padding: const EdgeInsets.all(16.0),
-                    child: Text(
-                      "📍 ${event.location.address}, ${event.location.city} ${event.location.postalCode}",
-                      style: const TextStyle(
-                        fontSize: 16,
-                        color: Colors.black87,
-                      ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          event.canteenInfo.name ?? 'Restaurant inconnu',
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black87,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          "📍 ${event.canteenInfo.location?.address },"
+                              " ${event.canteenInfo.location?.city }, ${event.canteenInfo.location?.postalCode}",
+                          style: const TextStyle(
+                            fontSize: 16,
+                            color: Colors.black87,
+                          ),
+                        ),
+
+                      ],
                     ),
+
+                    /**/
                   ),
 
                   Padding(

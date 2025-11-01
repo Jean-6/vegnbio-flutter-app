@@ -18,4 +18,9 @@ class Contact {
     'phone': phone,
     'email': email,
   };
+
+  factory Contact.empty() => Contact(
+    phone: '',
+    email: '',
+  );
 }

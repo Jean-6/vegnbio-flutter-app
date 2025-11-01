@@ -31,4 +31,11 @@ class Location{
     'country':country,
   };
 
+  factory Location.empty() => Location(
+    address: '',
+    city: '',
+    postalCode: '',
+    country: '',
+  );
+
 }
