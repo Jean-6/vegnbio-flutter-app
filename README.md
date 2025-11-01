@@ -1,16 +1,43 @@
-# vegnbio
+# 🍃 Veg'N Bio Mobile App (Client / Fournisseur)
 
-A new Flutter project.
+Application mobile Flutter pour les **clients** et **fournisseurs** de la plateforme Veg'N Bio.
+Elle permet la réservation, la gestion des repas, la participation aux événements, et la communication entre les acteurs.
 
-## Getting Started
+---
 
-This project is a starting point for a Flutter application.
+## 🚀 Fonctionnalités principales
 
-A few resources to get you started if this is your first Flutter project:
+### 👤 Côté Client
+- Création et connexion au compte.
+- Consultation des restaurants partenaires.
+- Recherche et filtrage de repas (vegan, bio, sans gluten...).
+- Réservation de table ou participation à un événement.
+- Consultation et gestion des commandes.
+- Modification du profil et du mot de passe.
+- Déconnexion sécurisée.
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+### 🏪 Côté Fournisseur (Restaurateur)
+- Authentification avec BasicAuth.
+- Gestion du catalogue de repas (CRUD).
+- Consultation des réservations et participants aux événements.
+- Gestion des événements locaux (ajout, édition, suppression).
+- Statistiques sur les ventes et participations.
+- Modification du mot de passe et déconnexion.
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+---
+
+## 🧱 Architecture Flutter
+- **State Management** : Provider
+- **Networking** : `http`
+- **Storage sécurisé** : `flutter_secure_storage`
+- **Logging** : `logger`
+- **UI** : Material Design + Grille de cards responsive
+- **Routing dynamique** selon le rôle utilisateur (client / fournisseur)
+
+---
+
+## 📦 Installation
+
+```bash
+flutter pub get
+flutter run
