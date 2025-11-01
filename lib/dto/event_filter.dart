@@ -2,12 +2,14 @@ import 'package:intl/intl.dart';
 
 class EventFilter {
   final String? canteenId;
+  final String? canteenName;
   final String? type;
   final DateTime? startDate;
   final DateTime? endDate;
 
   EventFilter({
     required this.canteenId,
+    required this.canteenName,
     required this.type,
     required this.startDate,
     required this.endDate,
@@ -18,6 +20,7 @@ class EventFilter {
     final Map<String, String> params = {};
     final dateFormat = DateFormat('dd-MM-yyyy');
     if (canteenId!=null && canteenId!.isNotEmpty) params['canteenId'] = canteenId!;
+    if (canteenName!=null && canteenName!.isNotEmpty) params['canteenName'] = canteenName!;
     if (type!=null && type!.isNotEmpty) params['type'] = type!;
     if(startDate!=null )params['startDate'] = dateFormat.format(startDate!);
     if(endDate!=null )params['endDate'] = dateFormat.format(endDate!);

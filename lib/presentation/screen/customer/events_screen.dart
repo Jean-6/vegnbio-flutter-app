@@ -23,12 +23,15 @@ class EventsScreenState extends State<EventsScreen> {
   final logger = Logger();
   final DateFormat dateFormat = DateFormat('dd/MM/yyyy');
 
+  String? _canteen;
   String? _selectedCanteen;
+  String? _canteenName;
   String? _selectedType;
   DateTime? _startDate;
   DateTime? _endDate;
   bool _isLoading = false;
 
+  final _canteenController = TextEditingController();
   List<Event> filteredEvents = [];
   List<CanteenOption> canteenOptions = [];
 
@@ -59,6 +62,7 @@ class EventsScreenState extends State<EventsScreen> {
     try {
       final filters = EventFilter(
         canteenId: _selectedCanteen,
+        canteenName: _canteen,
         type: _selectedType,
         startDate: _startDate,
         endDate: _endDate,
@@ -119,38 +123,29 @@ class EventsScreenState extends State<EventsScreen> {
                     key: _formKey,
                     child: Column(
                       children: [
-                        // Filtrer par restaurant
-                        DropdownButtonFormField<String>(
+
+                        TextFormField(
+                          controller: _canteenController,
                           decoration: InputDecoration(
+                            labelText: "Nom du restaurant",
+                            hintText: "Entrez le nom du restaurant",
                             filled: true,
                             fillColor: Colors.white,
-                            contentPadding: const EdgeInsets.symmetric(
-                                horizontal: 16, vertical: 12),
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(10),
-                              borderSide: const BorderSide(color: Color(0xFFE0E0E0)),
-                            ),
-                            enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
-                              borderSide: const BorderSide(color: Color(0xFFE0E0E0)),
                             ),
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(10),
                               borderSide: const BorderSide(
-                                  color: Color(0xFF4CAF50), width: 2),
+                                color: Color(0xFF4CAF50),
+                                width: 2,
+                              ),
                             ),
-                            labelText: "Sélectionner le restaurant",
-                            hintStyle: TextStyle(color: Colors.grey.shade500),
                           ),
-                          value: _selectedCanteen,
-                          items: canteenOptions.map((canteen) {
-                            return DropdownMenuItem<String>(
-                              value: canteen.id,
-                              child: Text(canteen.name),
-                            );
-                          }).toList(),
-                          onChanged: (value) => setState(() => _selectedCanteen = value),
+                          onChanged: (value) => _canteen = value,
                         ),
+                        // Filtrer par restaurant
+                       
                         const SizedBox(height: 8),
                         // Filtrer par type
                         DropdownButtonFormField<String>(

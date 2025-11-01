@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;
+import 'package:intl/intl.dart';
 import 'package:logger/logger.dart';
 import 'package:vegnbio/dto/event.dart';
 import 'package:vegnbio/dto/event_filter.dart';
@@ -14,11 +15,14 @@ class EventService {
 
   Future<List<Event>?> fetchWithFilters({required EventFilter eventFilter}) async {
 
+    final dateFormat = DateFormat('dd-MM-yyyy'); // ou dd-MM-yyyy selon l'API
     final queryParameters = {
-      if (eventFilter.canteenId != null) 'canteenId': eventFilter.canteenId,
-      if (eventFilter.type != null) 'type': eventFilter.type,
-      if (eventFilter.startDate != null) 'startDate': eventFilter.startDate,
-      if (eventFilter.endDate != null) 'endDate': eventFilter.endDate,
+      if (eventFilter.canteenId != null) 'canteenId': eventFilter.canteenId!,
+      if (eventFilter.canteenName != null) 'canteenName': eventFilter.canteenName!,
+      if (eventFilter.type != null) 'type': eventFilter.type!,
+      if (eventFilter.startDate != null) 'startDate': eventFilter.startDate!.toIso8601String().split('T')[0],
+      if (eventFilter.endDate != null) 'endDate': eventFilter.endDate!.toIso8601String().split('T')[0],
+
     };
 
     final basicAuth = await authHelper.readBasicAuthHeader();
