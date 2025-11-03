@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:intl/intl.dart';
 
-class Offer {
+class Product {
   final String type;
   final String name;
   final String desc;
@@ -16,7 +16,7 @@ class Offer {
   final DateTime expirationDate;
   final String supplierId;
 
-  Offer({
+  Product({
     required this.type,
     required this.name,
     required this.desc,
@@ -31,7 +31,7 @@ class Offer {
     required this.supplierId,
   });
 
-  factory Offer.fromJson(Map<String, dynamic> json) {
+  factory Product.fromJson(Map<String, dynamic> json) {
     final dateFormat = DateFormat('dd-MM-yyyy');
 
     double _toDouble(dynamic value) {
@@ -42,7 +42,7 @@ class Offer {
     }
 
 
-    return Offer(
+    return Product(
       type: json['type'] as String? ??"",
       name: json['name'] as String? ?? "",
       desc: json['desc'] as String? ?? "",
@@ -67,19 +67,22 @@ class Offer {
   }
 
   Map<String, dynamic> toJson() {
+    final dateFormat = DateFormat('dd-MM-yyyy');
+
     return {
       'type': type,
-      'nom': name,
-      'description': desc,
+      'name': name,
+      'desc': desc,
       'category': category,
       'quantity': quantity,
       'unit': unit,
-      'unite_price': unitPrice,
+      'unitPrice': unitPrice,
       'pictures': pictures,
       'origin': origin,
-      'availability_date': availabilityDate.toIso8601String(),
-      'expiration_date': expirationDate.toIso8601String(),
-      //'supplier_id': supplierId,
+      'availabilityDate': dateFormat.format(availabilityDate),
+      'expirationDate': dateFormat.format(expirationDate),
+      'supplierId': supplierId,
     };
   }
+
 }

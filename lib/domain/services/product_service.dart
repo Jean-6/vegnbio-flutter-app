@@ -10,16 +10,16 @@ import '../../core/services/credential_storage_helper.dart';
 import '../../dto/offer_filter.dart';
 import '../../dto/response_wrapper.dart';
 import '../../dto/upload_item.dart';
-import '../model/offer.dart';
+import '../model/product.dart';
 
 import 'package:http_parser/http_parser.dart';
 
-class OfferService {
+class ProductService {
   final logger = Logger();
   final _baseUrl = "http://172.20.10.5:8082";
   final authHelper = CredentialStorageHelper();
 
-  Future<List<Offer>> fetchWithFilters({
+  Future<List<Product>> fetchWithFilters({
     required OfferFilter filters
   }) async {
     final basicAuth = await authHelper.readBasicAuthHeader();
@@ -28,7 +28,7 @@ class OfferService {
       throw Exception ("Authentication required");
     }
 
-    final url = Uri.parse("$_baseUrl/api/offer/")
+    final url = Uri.parse("$_baseUrl/api/product/")
         .replace(queryParameters: filters.toQueryParams());
 
     final res = await http.get(url, headers : {"Authorization": basicAuth});
@@ -37,7 +37,7 @@ class OfferService {
       final Map<String, dynamic> jsonMap = json.decode(res.body);
       final rw = ResponseWrapper.fromJson(
         jsonMap,
-        (data) => (data as List).map((e) => Offer.fromJson(e)).toList(),
+        (data) => (data as List).map((e) => Product.fromJson(e)).toList(),
       );
       logger.d('>> Parsed offer (full field): ${rw.data}');
       return rw.data ?? [];
@@ -47,7 +47,7 @@ class OfferService {
     }
   }
 
-  Future<Offer?> save({
+  Future<Product?> save({
     required String type,
     required String name,
     required String desc,
@@ -69,7 +69,7 @@ class OfferService {
         return null;
       }
 
-      final url = Uri.parse("$_baseUrl/api/offer/");
+      final url = Uri.parse("$_baseUrl/api/product/");
       final request = http.MultipartRequest('POST', url)
         ..headers['Authorization'] = basicAuth;
 
@@ -155,7 +155,7 @@ class OfferService {
 
         if (response.statusCode == 200 || response.statusCode == 201) {
           final data = jsonDecode(response.body);
-          return Offer.fromJson(data);
+          return Product.fromJson(data);
         } else {
           logger.e('Error ${response.statusCode}: ${response.body}');
           return null;
@@ -165,7 +165,7 @@ class OfferService {
         final response = await http.Response.fromStream(streamedResponse);
         if (response.statusCode == 200 || response.statusCode == 201) {
           final data = jsonDecode(response.body);
-          return Offer.fromJson(data);
+          return Product.fromJson(data);
         } else {
           logger.e('Error ${response.statusCode}: ${response.body}');
           return null;

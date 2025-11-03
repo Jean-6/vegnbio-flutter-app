@@ -1,13 +1,13 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-import '../../domain/model/offer.dart';
+import '../../domain/model/product.dart';
 
-class OfferCard extends StatelessWidget {
-  final Offer offer;
+class ProductCard extends StatelessWidget {
+  final Product offer;
   final VoidCallback? onTap;
 
-  const OfferCard({Key? key, required this.offer, required this.onTap})
+  const ProductCard({Key? key, required this.offer, required this.onTap})
     : super(key: key);
 
   @override

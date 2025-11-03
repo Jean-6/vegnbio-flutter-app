@@ -5,16 +5,17 @@ import 'package:vegnbio/core/services/date_picker_service.dart';
 import 'package:vegnbio/dto/upload_item.dart';
 import '../../../core/services/image_picker_service.dart';
 import '../../../core/services/secure_storage_service.dart';
-import '../../../domain/services/offer_service.dart';
+import '../../../domain/services/product_service.dart';
 import '../../../core/constants/values.dart';
+import '../demo/dash.dart';
 
-class PlaceOfferScreen extends StatefulWidget {
-  const PlaceOfferScreen({super.key});
+class PlaceProductScreen extends StatefulWidget {
+  const PlaceProductScreen({super.key});
   @override
   State<StatefulWidget> createState() => _PlaceOfferScreenState();
 }
 
-class _PlaceOfferScreenState extends State<PlaceOfferScreen> {
+class _PlaceOfferScreenState extends State<PlaceProductScreen> {
   final _formKey = GlobalKey<FormState>();
 
   final TextEditingController _nameCtrl = TextEditingController();
@@ -40,7 +41,7 @@ class _PlaceOfferScreenState extends State<PlaceOfferScreen> {
 
   List<UploadItem> uploads = [];
 
-  final offerService = OfferService();
+  final offerService = ProductService();
 
   Future<void> _pickDate(bool isAvailability) async {
     final picked = await showDatePicker(
@@ -62,18 +63,19 @@ class _PlaceOfferScreenState extends State<PlaceOfferScreen> {
   }
 
   Future<void> _trySubmit() async {
+
     if (!_formKey.currentState!.validate()) return;
 
     /**/
-    if(_selectedType == null || _selectedType!.isEmpty){
+    if (_selectedType == null || _selectedType!.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Veuillez selectionner le type d'offre")),
       );
       return;
     }
-    if(_nameCtrl.text.trim().isEmpty){
+    if (_nameCtrl.text.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Veuillez entrer le ,om du produit"))
+        const SnackBar(content: Text("Veuillez entrer le ,om du produit")),
       );
       return;
     }
@@ -119,7 +121,6 @@ class _PlaceOfferScreenState extends State<PlaceOfferScreen> {
       return;
     }
 
-
     /**/
 
     if (uploads.isEmpty) {
@@ -149,7 +150,6 @@ class _PlaceOfferScreenState extends State<PlaceOfferScreen> {
         );
         return;
       }
-      
 
       final result = await offerService.save(
         type: _selectedType ?? "",
@@ -166,12 +166,13 @@ class _PlaceOfferScreenState extends State<PlaceOfferScreen> {
         userId: userId,
         onProgress: (fileName, sent, total) {
           setState(() {
-            if(fileName.isNotEmpty){
-              final item = uploads.where((u) => u.fileName == fileName).isNotEmpty
+            if (fileName.isNotEmpty) {
+              final item =
+                  uploads.where((u) => u.fileName == fileName).isNotEmpty
                   ? uploads.firstWhere((u) => u.fileName == fileName)
                   : null;
 
-              if(item != null){
+              if (item != null) {
                 item.isUploading = true;
                 item.progress = total > 0 ? sent / total : 0;
               }
@@ -179,7 +180,6 @@ class _PlaceOfferScreenState extends State<PlaceOfferScreen> {
           });
         },
       );
-      
 
       if (result != null) {
         setState(() {
@@ -191,7 +191,14 @@ class _PlaceOfferScreenState extends State<PlaceOfferScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text("Offre créée avec succès ✅")),
         );
-        Navigator.of(context).pushReplacementNamed(AppRoutes.demo2);
+
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => Dash(),
+          ),
+        );
+        //Navigator.of(context).pushReplacementNamed(AppRoutes.supplierDashboard);
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -457,7 +464,7 @@ class _PlaceOfferScreenState extends State<PlaceOfferScreen> {
                         ),
                       ),
                     ),
-                    
+
                     Expanded(
                       flex: 1,
                       child: Container(
@@ -468,7 +475,10 @@ class _PlaceOfferScreenState extends State<PlaceOfferScreen> {
                           decoration: InputDecoration(
                             filled: true,
                             fillColor: Colors.white,
-                            contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                            contentPadding: EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 12,
+                            ),
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(10),
                               borderSide: BorderSide(color: Color(0xFFE0E0E0)),
@@ -488,16 +498,17 @@ class _PlaceOfferScreenState extends State<PlaceOfferScreen> {
                             hintText: "0",
                           ),
                           validator: (value) {
-                            if (value == null || value.isEmpty) return "Quantité requise";
+                            if (value == null || value.isEmpty)
+                              return "Quantité requise";
                             final qty = double.tryParse(value);
-                            if (qty == null || qty <= 0) return "Entrez une quantité valide (> 0)";
+                            if (qty == null || qty <= 0)
+                              return "Entrez une quantité valide (> 0)";
                             return null;
                           },
-                        )
+                        ),
                       ),
-                      
                     ),
-                    
+
                     Expanded(
                       flex: 2, // 2 parties pour le prix
                       child: Container(
