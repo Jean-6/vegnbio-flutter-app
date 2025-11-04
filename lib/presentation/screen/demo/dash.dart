@@ -4,6 +4,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
 import 'package:vegnbio/presentation/screen/supplier/marketplace_screen.dart';
+import 'package:vegnbio/presentation/screen/supplier/my_product_screen.dart';
 
 import '../../../core/constants/strings.dart';
 import '../../../core/services/secure_storage_service.dart';
@@ -71,114 +72,66 @@ class _DashState extends State<Dash> {
 
   bool get isSupplier => roles.contains("SUPPLIER");
   bool get isCustomer => roles.contains("CUSTOMER");
+  
 
+  List<Widget> _buildGridIcons() {
+    List<Widget> icons = [];
+    
+    if (roles.contains("SUPPLIER") || roles.contains("CUSTOMER")) {
+      icons.add(_iconBox(Icons.store, "Market", () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => MarketplaceScreen()),
+        );
+      }));
+    }
 
-  /**/
+    // Icônes réservées aux fournisseurs
+    if (roles.contains("SUPPLIER")) {
+      icons.add(_iconBox(Icons.inventory_2_outlined, "Mes articles", () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => MyProductScreen()),
+        );
+      }));
+      icons.add(_iconBox(Icons.upload_file, "Vendre", () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => PlaceProductScreen()),
+        );
+      }));
+    }
 
-  /*Widget _buildSquareTile({
-    required IconData icon,
-    required String title,
-    String? subtitle,
-    bool trailingChevron = true,
-  }) {
-    return Material(
-      color: Colors.white,
-      borderRadius: BorderRadius.circular(14),
-      elevation: 2,
-      shadowColor: Colors.black12,
-      child: InkWell(
-        borderRadius: BorderRadius.circular(14),
-        onTap: () {
-          // Navigation vers MarketplaceScreen
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => MarketplaceScreen()),
-          );
-        },
-        child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 14),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Container(
-                decoration: BoxDecoration(
-                  color: Colors.grey.shade100,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                padding: const EdgeInsets.all(10),
-                child: Icon(icon, color: Colors.deepOrange, size: 28),
-              ),
-              const SizedBox(height: 12),
-              Text(
-                title,
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                  fontWeight: FontWeight.w600,
-                  fontSize: 16,
-                ),
-              ),
-              if (subtitle != null)
-                Text(
-                  subtitle,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(color: Colors.grey.shade600, fontSize: 14),
-                ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }*/
-  Widget _buildSquareTile({
-    required IconData icon,
-    required String title,
-    String? subtitle,
-    bool trailingChevron = true,
-    VoidCallback? onTap, // <-- callback pour action personnalisée
-  }) {
-    return Material(
-      color: Colors.white,
-      borderRadius: BorderRadius.circular(14),
-      elevation: 2,
-      shadowColor: Colors.black12,
-      child: InkWell(
-        borderRadius: BorderRadius.circular(14),
-        onTap: onTap, // <-- onTap personnalisé ici
-        child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 14),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Container(
-                decoration: BoxDecoration(
-                  color: Colors.grey.shade100,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                padding: const EdgeInsets.all(10),
-                child: Icon(icon, color: Colors.deepOrange, size: 28),
-              ),
-              const SizedBox(height: 12),
-              Text(
-                title,
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                  fontWeight: FontWeight.w600,
-                  fontSize: 16,
-                ),
-              ),
-              if (subtitle != null)
-                Text(
-                  subtitle,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(color: Colors.grey.shade600, fontSize: 14),
-                ),
-            ],
-          ),
-        ),
-      ),
-    );
+    // Icônes réservées aux clients (CUSTOMER)
+    if (roles.contains("CUSTOMER")) {
+      icons.add(_iconBox(Icons.storefront_outlined, "Restos", () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const CanteenScreen()),
+        );
+      }));
+      icons.add(_iconBox(Icons.calendar_today, "Résa", () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const BookingsScreen()),
+        );
+      }));
+      icons.add(_iconBox(Icons.restaurant_menu, "Menus", () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const MenusScreen()),
+        );
+      }));
+      icons.add(_iconBox(Icons.event, "Événements", () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const EventsScreen()),
+        );
+      }));
+    }
+
+    return icons;
   }
-
   @override
   Widget build(BuildContext context) {
     final List<Widget> _pages = [
@@ -252,82 +205,38 @@ class _DashState extends State<Dash> {
             ),
           ),
           const SizedBox(height: 20),
-          Wrap(
-            spacing: 16, // espace horizontal entre les icônes
-            runSpacing: 16, // espace vertical entre les lignes
-            alignment: WrapAlignment.center,
-            children: [
 
-              if (roles.contains("SUPPLIER") || roles.contains("CUSTOMER")) ...[
-                _iconBox(Icons.store, "Market", () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (_) => MarketplaceScreen()),
-                  );
-                }),
-
-              ],
-              if (roles.contains("SUPPLIER")) ...[
-                _iconBox(Icons.upload_file, "Deposer une offre", () { //Icons.upload_outlined
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (_) => PlaceProductScreen()),
-                  );
-                }),
-               // _iconBox(Icons.history, "Transactions", () {}),
-               // _iconBox(Icons.bar_chart, "Stats", () {}),
-              ],
-              if (isCustomer) ...[
-
-                _iconBox(Icons.storefront_outlined, "Restaurants", () {//Icons.storefront_outlined Icons.restaurant
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (_) => const CanteenScreen()),
-                  );
-                }),
-                _iconBox(Icons.calendar_today, "Mes réservations", () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (_) => const BookingsScreen()),
-                  );
-                }),
-                _iconBox(Icons.restaurant_menu, "Menus", () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (_) => const MenusScreen()),
-                  );
-                }),
-                _iconBox(Icons.event, "Événements", () { //Icons.card_giftcard
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (_) => const EventsScreen()),
-                  );
-                }),
-              ],
-            ],
+          GridView.count(
+            crossAxisCount: 3, // nombre de colonnes (3x3) ; mets 4 pour 4x4
+            shrinkWrap: true,   // pour qu'il prenne seulement la hauteur nécessaire
+            physics: const NeverScrollableScrollPhysics(), // évite le scroll interne
+            crossAxisSpacing: 5,
+            mainAxisSpacing: 5,
+            childAspectRatio: 1.0,
+            children:  _buildGridIcons()
           ),
 
-          const SizedBox(height: 30),
+          //const SizedBox(height: 5),
           const Text(
             "Nouveautés",
             style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 5),
 
-// Section événements
+        // Section événements
           if (_isLoading)
             const Center(child: CircularProgressIndicator())
           else if (latestEvents.isEmpty)
             const Center(child: Text("Aucun événement récent trouvé"))
           else
             ListView.builder(
-              shrinkWrap: true, // Important pour ListView dans un SingleChildScrollView ou ListView
-              physics: const NeverScrollableScrollPhysics(), // pour éviter conflit de scroll
+              shrinkWrap: true, 
+              physics: const NeverScrollableScrollPhysics(), 
               itemCount: latestEvents.length,
               itemBuilder: (context, index) {
                 final event = latestEvents[index];
                 return Padding(
-                  padding: const EdgeInsets.only(bottom: 8),
+                  padding: const EdgeInsets.only(bottom: 5),
                   child: EventCard(
                     event: event,
                     onTap: () {
@@ -342,9 +251,6 @@ class _DashState extends State<Dash> {
                 );
               },
             ),
-
-
-
         ],
       ),
     );
