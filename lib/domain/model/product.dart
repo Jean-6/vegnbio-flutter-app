@@ -2,6 +2,50 @@ import 'dart:io';
 
 import 'package:intl/intl.dart';
 
+
+enum Status {
+  APPROVED,
+  PENDING,
+  REJECTED,
+}
+
+Status statusFromString(String? status) {
+  switch (status?.toUpperCase()) {
+    case 'APPROVED':
+      return Status.APPROVED;
+    case 'PENDING':
+      return Status.PENDING;
+    case 'REJECTED':
+      return Status.REJECTED;
+    default:
+      return Status.PENDING; // valeur par défaut
+  }
+}
+
+class Approval {
+  final Status status;
+  final String? reasons;
+  final DateTime? date;
+
+  Approval({required this.status, this.reasons, this.date});
+
+  factory Approval.fromJson(Map<String, dynamic> json) {
+    return Approval(
+      status: statusFromString(json['status'] as String?),
+      reasons: json['reasons'] as String?,
+      date: json['date'] != null ? DateTime.parse(json['date']) : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'status': status.name,
+      'reasons': reasons,
+      'date': date?.toIso8601String(),
+    };
+  }
+}
+
 class Product {
   final String type;
   final String name;
@@ -15,6 +59,7 @@ class Product {
   final DateTime availabilityDate;
   final DateTime expirationDate;
   final String supplierId;
+  final Approval? approval;
 
   Product({
     required this.type,
@@ -29,6 +74,7 @@ class Product {
     required this.availabilityDate,
     required this.expirationDate,
     required this.supplierId,
+    this.approval,
   });
 
   factory Product.fromJson(Map<String, dynamic> json) {
@@ -50,8 +96,6 @@ class Product {
 
       quantity: _toDouble(json['quantity']),
       //(json['quantity'] as num).toDouble(),
-
-
       unit: json['unit'] as String? ?? "",
       unitPrice: _toDouble(json['unitPrice']),
       origin: json['origin'] as String? ?? "",
@@ -63,6 +107,9 @@ class Product {
           ? dateFormat.parse(json['expirationDate'])
           : DateTime.now(),
       supplierId: json['supplierId'] as String? ?? "",
+      approval: json['approval'] != null
+          ? Approval.fromJson(json['approval'])
+          : null,
     );
   }
 
@@ -82,6 +129,7 @@ class Product {
       'availabilityDate': dateFormat.format(availabilityDate),
       'expirationDate': dateFormat.format(expirationDate),
       'supplierId': supplierId,
+      'approval': approval?.toJson(),
     };
   }
 

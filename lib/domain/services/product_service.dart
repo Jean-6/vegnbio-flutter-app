@@ -7,7 +7,7 @@ import 'package:intl/intl.dart';
 import 'package:logger/logger.dart';
 
 import '../../core/services/credential_storage_helper.dart';
-import '../../dto/offer_filter.dart';
+import '../../dto/product_filter.dart';
 import '../../dto/response_wrapper.dart';
 import '../../dto/upload_item.dart';
 import '../model/product.dart';
@@ -19,8 +19,10 @@ class ProductService {
   final _baseUrl = "http://172.20.10.5:8082";
   final authHelper = CredentialStorageHelper();
 
-  Future<List<Product>> fetchWithFilters({
-    required OfferFilter filters
+
+  Future<List<Product>> fetchSupplierProducts({
+    String? supplierId,
+    required ProductFilter filters
   }) async {
     final basicAuth = await authHelper.readBasicAuthHeader();
     if (basicAuth == null) {
@@ -28,7 +30,41 @@ class ProductService {
       throw Exception ("Authentication required");
     }
 
+    // Construire les query parameters
+    final queryParams = Map<String, String>.from(filters.toQueryParams());
+    if (supplierId != null && supplierId.isNotEmpty) {
+      queryParams['supplierId'] = supplierId;
+    }
+    
     final url = Uri.parse("$_baseUrl/api/product/")
+        .replace(queryParameters: filters.toQueryParams());
+
+    final res = await http.get(url, headers : {"Authorization": basicAuth});
+    logger.d('>> Raw response: ${res.body}');
+    if (res.statusCode == 200) {
+      final Map<String, dynamic> jsonMap = json.decode(res.body);
+      final rw = ResponseWrapper.fromJson(
+        jsonMap,
+            (data) => (data as List).map((e) => Product.fromJson(e)).toList(),
+      );
+      logger.d('>> Parsed offer (full field): ${rw.data}');
+      return rw.data ?? [];
+    } else {
+      logger.e('>> Error when fetching offers: ${res.statusCode}');
+      throw Exception('Error when fetching offers');
+    }
+  }
+
+  Future<List<Product>> fetchWithFilters({
+    required ProductFilter filters
+  }) async {
+    final basicAuth = await authHelper.readBasicAuthHeader();
+    if (basicAuth == null) {
+      logger.e('>> Error when retrieving basic auth credentials');
+      throw Exception ("Authentication required");
+    }
+
+    final url = Uri.parse("$_baseUrl/api/product/approved")
         .replace(queryParameters: filters.toQueryParams());
 
     final res = await http.get(url, headers : {"Authorization": basicAuth});

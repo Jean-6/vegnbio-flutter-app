@@ -1,4 +1,4 @@
-class OfferFilter {
+class ProductFilter {
   final String? type;
   final String? name;
   final String? category;
@@ -6,7 +6,7 @@ class OfferFilter {
   final double? minPrice;
   final double? maxPrice;
 
-  OfferFilter({
+  ProductFilter({
     this.type,
     this.name,
     this.category,

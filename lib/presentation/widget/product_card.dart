@@ -4,11 +4,42 @@ import 'package:flutter/material.dart';
 import '../../domain/model/product.dart';
 
 class ProductCard extends StatelessWidget {
-  final Product offer;
+  final Product product;
   final VoidCallback? onTap;
+  final bool showApproval;
 
-  const ProductCard({Key? key, required this.offer, required this.onTap})
+  const ProductCard({Key? key,
+    required this.product,
+    required this.onTap,
+    this.showApproval = true,
+  })
     : super(key: key);
+
+
+  IconData _getStatusIcon(Status? status) {
+    switch (status) {
+      case Status.APPROVED:
+        return Icons.check_circle;
+      case Status.PENDING:
+        return Icons.hourglass_top;
+      case Status.REJECTED:
+        return Icons.cancel;
+      default:
+        return Icons.help;
+    }
+  }
+  Color _getStatusColor(Status? status) {
+    switch (status) {
+      case Status.APPROVED:
+        return Colors.green;
+      case Status.PENDING:
+        return Colors.orange;
+      case Status.REJECTED:
+        return Colors.red;
+      default:
+        return Colors.grey;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -34,8 +65,8 @@ class ProductCard extends StatelessWidget {
             ClipRRect(
               borderRadius: BorderRadius.circular(8),
               child: Image.network(
-                offer.pictures.isNotEmpty
-                    ? offer.pictures.first
+                product.pictures.isNotEmpty
+                    ? product.pictures.first
                     : 'https://via.placeholder.com/100',
                 width: 80,
                 height: 80,
@@ -58,14 +89,14 @@ class ProductCard extends StatelessWidget {
                 children: [
                   // Name et Type sur la même ligne
                   Text(
-                    '${offer.name} - ${offer.type}',
+                    '${product.name} - ${product.type}',
                     style: const TextStyle(
                         fontSize: 16, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 4),
                   // Catégorie
                   Text(
-                    'Catégorie: ${offer.category}',
+                    'Catégorie: ${product.category}',
                     style: TextStyle(fontSize: 14, color: Colors.grey[600]),
                   ),
                   const SizedBox(height: 8),
@@ -74,24 +105,75 @@ class ProductCard extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        'Prix: ${offer.unitPrice.toStringAsFixed(2)} € / ${offer.unit}',
+                        'Prix: ${product.unitPrice.toStringAsFixed(2)} € / ${product.unit}',
                         style: const TextStyle(
                             fontSize: 14, fontWeight: FontWeight.w500),
                       ),
                       Text(
-                        'Qté: ${offer.quantity} ${offer.unit}',
+                        'Qté: ${product.quantity} ${product.unit}',
                         style: TextStyle(fontSize: 14, color: Colors.grey[600]),
                       ),
                       Text(
-                        'Origine: ${offer.origin}',
+                        'Origine: ${product.origin}',
                         style: TextStyle(fontSize: 14, color: Colors.grey[600]),
                       ),
                     ],
                   ),
+                  if (showApproval && product.approval != null) // affichage conditionnel
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Icon(
+                              _getStatusIcon(product.approval!.status),
+                              color: _getStatusColor(product.approval!.status),
+                              size: 20,
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              product.approval!.status.name,
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: _getStatusColor(product.approval!.status),
+                              ),
+                            ),
+                          ],
+                        ),
+                        // Affiche les raisons si rejeté
+                        if (product.approval!.status == Status.REJECTED && product.approval!.reasons != null)
+                          Padding(
+                            padding: const EdgeInsets.only(top: 4),
+                            child: Text(
+                              'Raisons: ${product.approval!.reasons}',
+                              style: const TextStyle(color: Colors.red, fontStyle: FontStyle.italic),
+                            ),
+                          ),
+                      ],
+                    ),
+
+                  /*if (showApproval && product.approval != null)
+                  Row(
+                    children: [
+                      Icon(
+                        _getStatusIcon(product.approval!.status),
+                        color: _getStatusColor(product.approval!.status),
+                        size: 20,
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        product.approval!.status.name ,
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: _getStatusColor(product.approval!.status),
+                        ),
+                      ),
+                    ],
+                  ),*/
                   const SizedBox(height: 4),
                   // Date de disponibilité
                   Text(
-                    'Disponible le: ${offer.availabilityDate.day}/${offer.availabilityDate.month}/${offer.availabilityDate.year}',
+                    'Disponible le: ${product.availabilityDate.day}/${product.availabilityDate.month}/${product.availabilityDate.year}',
                     style: TextStyle(fontSize: 14, color: Colors.green[700]),
                   ),
                 ],
